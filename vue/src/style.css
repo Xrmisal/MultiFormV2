@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme {
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer utilities {
+  @keyframes fade-in-down {
+    from { transform: translateY(-0.75rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .animate-fade-in-down {
+    animation:  fade-in-down 0.2s var(--ease-snappy) both;
+  }
+}
