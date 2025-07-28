@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->date('date_of_birth')->nullable();
-            $table->string('address')->nullable();
+            $table->string('street')->nullable();
+            $table->string('city')->nullable();
             $table->string('postcode')->nullable();
-            $table->string('address')->nullable();
             $table->tinyInteger('step');
             $table->boolean('complete');
             $table->timestamps();
