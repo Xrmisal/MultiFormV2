@@ -6,12 +6,12 @@ import store from "../store";
 const routes = [
     {
         path: '/',
-        redirect: `/form/${store.state.lead.step}`,
+        redirect: '/form',
         name: 'FormLayout',
         component: FormLayout,
         children: [
             {
-                path: `/form/${store.state.lead.step}`,
+                path: '/form',
                 name: 'Form',
                 component: Fields
             }

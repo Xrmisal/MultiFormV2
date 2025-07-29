@@ -1,23 +1,47 @@
 import { createStore } from "vuex";
+import createPersistedState from "vuex-persistedstate";
 
 const store = createStore( {
     state: {
         lead: {
-            name: '',
-            email: '',
-            phone: '',
-            date_of_birth: '',
-            street: '',
-            city: '',
-            postcode: '',
-            step: 1,
+            data: {
+                name: '',
+                email: '',
+                phone: '',
+                date_of_birth: '',
+                street: '',
+                city: '',
+                postcode: '',
+                step: 1
+            },
             complete: false
         },
+        fields: []
     },
     getters: {},
-    actions: {},
-    mutations: {},
-    modules: {}
+    actions: {
+        /*
+            TODO
+            - Add action to initialise a lead
+            - Add action to update a lead
+            - Add action to 
+            - Add action to complete a lead
+            
+        */
+    },
+    mutations: {
+        /*
+            TODO
+            - Add mutation to update lead data
+            - Add mutation to update current form fields
+            - Add mutation to increment lead step
+            - Add mutation to set complete lead
+        */
+    },
+    modules: {},
+    plugins: [
+        createPersistedState()
+    ]
 })
 
 export default store
