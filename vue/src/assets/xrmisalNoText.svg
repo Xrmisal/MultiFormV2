@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Transparent background -->
+  <g transform="translate(100, 100)">
+    <path d="M -50 -70 L -10 -10 L -50 70" stroke="#00ffcc" stroke-width="8" fill="none"></path>
+    <path d="M 50 -70 L 10 -10 L 50 70" stroke="#00ffcc" stroke-width="8" fill="none"></path>
+  </g>
+</svg>
