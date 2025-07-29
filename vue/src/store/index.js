@@ -16,7 +16,11 @@ const store = createStore( {
             },
             complete: false
         },
-        fields: []
+        fields: [
+            'name',
+            'email',
+            'phone',
+        ]
     },
     getters: {},
     actions: {
