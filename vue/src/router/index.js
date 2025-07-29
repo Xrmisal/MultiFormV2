@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import FormLayout from "../components/FormLayout.vue";
 import Fields from "../views/Fields.vue";
+import Complete from "../views/Complete.vue";
 import store from "../store";
 
 const routes = [
@@ -14,6 +15,11 @@ const routes = [
                 path: '/form',
                 name: 'Form',
                 component: Fields
+            },
+            {
+                path: '/form/complete',
+                name: 'Complete',
+                component: Complete
             }
         ]
     }

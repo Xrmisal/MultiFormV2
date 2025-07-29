@@ -12,8 +12,9 @@ const store = createStore( {
                 street: '',
                 city: '',
                 postcode: '',
-                step: 1
+                step: ''
             },
+            step: 1,
             complete: false
         },
         fields: [
@@ -30,15 +31,16 @@ const store = createStore( {
             - Add action to update a lead
             - Add action to 
             - Add action to complete a lead
-            
         */
+            
     },
     mutations: {
         /*
             TODO
-            - Add mutation to update lead data
+            - Add mutation to update lead data aside from step
             - Add mutation to update current form fields
             - Add mutation to increment lead step
+            - Add mutation to change local step
             - Add mutation to set complete lead
         */
     },

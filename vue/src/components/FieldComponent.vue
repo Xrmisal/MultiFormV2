@@ -2,8 +2,9 @@
 import { computed } from 'vue';
 import store from '../store';
 defineProps({
-    Field: String
+    Field: String,
 })
+defineEmits(['update:field'])
 
 const lead = computed(() => store.state.lead.data)
 
