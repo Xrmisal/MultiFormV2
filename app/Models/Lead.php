@@ -16,7 +16,6 @@ class Lead extends Model
         'street_name',
         'city',
         'postcode',
-        'step',
         'complete',
     ];
 }
