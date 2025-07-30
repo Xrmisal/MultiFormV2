@@ -18,4 +18,8 @@ class Lead extends Model
         'postcode',
         'complete',
     ];
+
+    public function getRouteKeyName(){
+        return 'email';
+    }
 }
