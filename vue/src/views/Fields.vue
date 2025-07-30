@@ -3,22 +3,27 @@ import { computed, ref } from 'vue';
 import store from '../store';
 import Alert from '../components/Alert.vue'
 import FieldComponent from '../components/FieldComponent.vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import isValid from 'uk-postcode-validator'
 import axios from 'axios'
 
-const route = useRoute()
+const router = useRouter()
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
 const errorMsg = ref([])
+const finalStep = computed(() => (lead.value.step === 3))
 const isNewLead = ref(false)
 const valueChange = ref(false)
 const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
         console.log("mounted")
+        if(lead.value.data.complete) {
+                console.log("complete lead")
+                router.push({name: 'Complete'})
+        }
         if (!lead.value.data.step) {
                 console.log("new lead")
                 isNewLead.value = true
@@ -42,7 +47,8 @@ function lastStep() {
 }
 function createLead() {
         console.log("creating lead")
-        store.dispatch('createLead')
+        console.log(lead.value.data)
+        store.dispatch('createLead', lead.value.data)
         .then(() => {
                 isNewLead.value = false
                 console.log("lead created")
@@ -53,8 +59,7 @@ function createLead() {
         })
 }
 function updateLead() {
-        console.log("updating lead")
-        store.dispatch('updateLead')
+        store.dispatch('updateLead', lead.value.data)
         .catch((error) => {
                 errorMsg.value.push(error.message)
                 console.log("lead not updated")
@@ -148,9 +153,9 @@ async function areCurrentFieldsValid() {
 
 function complete() {
         console.log("completing lead")
-        store.dispatch('complete')
+        store.dispatch('completeLead')
         .then(() => {
-                route.push({name: 'complete'})
+                router.push({name: 'Complete'})
         })
         .catch((error) => {
                 errorMsg.value.push(error.message)
@@ -182,8 +187,10 @@ function complete() {
                         </Alert>
 
                         <FieldComponent v-for="field in fields" :field="field" @change="valueChange = true" 
-                        class="animate-fade-in-down" :style="{ 'animation-delay': `0.1s` }"/>
-                        
+                        class="animate-fade-in-down"/>
+                        <div v-if="finalStep">
+                                Yeahhhhhhhhh buddddyyyyyyy
+                        </div>
                         <div class="flex items-center justify-between">
                                 <button type="button" @click="lastStep" :disabled="lead.step === 1" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
                                         << Last Step
@@ -192,7 +199,7 @@ function complete() {
                                         Next Step >>
                                 </button>
                         </div>
-                        <div v-if="lead.step === 3">
+                        <div v-if="finalStep">
                                 <button type="submit" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                         Submit
                                 </button>
