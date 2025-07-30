@@ -2,30 +2,31 @@
 import { computed } from 'vue';
 import store from '../store';
 defineProps({
-    Field: String,
+    field: String,
 })
-defineEmits(['update:field'])
+defineEmits(['change'])
 
 const lead = computed(() => store.state.lead.data)
 
 </script>
 
 <template>
-    <div v-if="Field !== 'date_of_birth'">
+    <div v-if="field !== 'date_of_birth'">
         <label
-            :for="Field"
+            :for="field"
             class="block text-sm/6 font-medium text-white"
         >
-            {{Field.charAt(0).toUpperCase() + Field.slice(1) }}
+            {{field.charAt(0).toUpperCase() + field.slice(1) }}
         </label>
         <div class="mt-2">
             <input 
-                :type="Field"
-                :name="Field"
-                :id="Field"
-                :autocomplete="Field"
+                :type="field"
+                :name="field"
+                :id="field"
+                :autocomplete="field"
+                @change="$emit('change')"
                 required=""
-                v-model="lead[Field]"
+                v-model="lead[field]"
                 class="
                     block w-full
                     rounded-md
@@ -48,7 +49,7 @@ const lead = computed(() => store.state.lead.data)
     </div>
     <div v-else>
         <label
-            :for="Field"
+            :for="field"
             class="block text-sm/6 font-medium text-white"
         >
             Date Of Birth
@@ -56,11 +57,12 @@ const lead = computed(() => store.state.lead.data)
         <div class="mt-2">
             <input 
                 type="date" 
-                :name="Field" 
-                :id="Field" 
-                :autocomplete="Field" 
+                :name="field" 
+                :id="field" 
+                :autocomplete="field" 
+                @change="$emit('change')"
                 required="" 
-                v-model="lead[Field]" 
+                v-model="lead[field]" 
                 class="
                     block w-full
                     rounded-md

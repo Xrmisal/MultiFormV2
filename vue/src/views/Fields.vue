@@ -14,6 +14,7 @@ const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
 const errorMsg = ref([])
 const isNewLead = ref(false)
+const valueChange = ref(false)
 const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
@@ -26,13 +27,14 @@ onMounted(() => {
         }
 })
 async function nextStep() {
-        await areCurrentFieldsValid()
-        /*
+        if(!await areCurrentFieldsValid()) return
         console.log("next step")
         if(isNewLead.value) createLead()
-        else updateLead()
+        else if(valueChange.value) {
+                updateLead()
+                valueChange.value = false
+        }
         store.dispatch('nextStep')
-        */
 }
 function lastStep() {
         console.log("last step")
@@ -164,7 +166,7 @@ function complete() {
                         Submit Details
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="complete">
-                        <pre class="text-white">{{ lead }}</pre>
+                        <pre class="text-white">{{ lead }} {{ valueChange }}</pre>
                         <Alert v-if="errorMsg.length">
                                 <ul class="list-disc list-inside space-y-1 text-sm">
                                         <li v-for="error in errorMsg">
@@ -179,7 +181,8 @@ function complete() {
                                 </span>
                         </Alert>
 
-                        <FieldComponent v-for="field in fields" :Field="field" class="animate-fade-in-down" :style="{ 'animation-delay': `0.1s` }"/>
+                        <FieldComponent v-for="field in fields" :field="field" @change="valueChange = true" 
+                        class="animate-fade-in-down" :style="{ 'animation-delay': `0.1s` }"/>
                         
                         <div class="flex items-center justify-between">
                                 <button type="button" @click="lastStep" :disabled="lead.step === 1" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
