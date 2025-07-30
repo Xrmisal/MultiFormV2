@@ -36,6 +36,7 @@ async function nextStep() {
         console.log("next step")
         if(isNewLead.value) createLead()
         else if(valueChange.value) {
+                console.log("updating lead")
                 updateLead()
                 valueChange.value = false
         }
@@ -112,10 +113,20 @@ async function hasValidValue(field) {
                                 errorMsg.value.push("You must be at least 18 years old")
                                 return false
                         }
-                        return true                            
-                case 'street':
+                        return true
+                case 'house_number':
+                        if(isNaN(lead.value.data[field])) {
+                                errorMsg.value.push("House number must be a number")
+                                return false
+                        }
+                        if (lead.value.data[field].length < 1) {
+                                errorMsg.value.push("House number must be at least 1 character long")
+                                return false
+                        }
+                        return true
+                case 'street_name':
                         if (lead.value.data.postcode.length < 3) {
-                                errorMsg.value.push("Street must be at least 3 characters long")
+                                errorMsg.value.push("Street name must be at least 3 characters long")
                                 return false
                         }
                         return true
@@ -229,7 +240,9 @@ const progress = computed(() => {
                                         <hr>
                                         <div v-for="(value, field) in lead.data">
                                                 <p v-if="field !== 'step' && field !== 'complete'">{{fieldName(field)}}: {{ value  }}</p>
+
                                         </div>
+
 
                                 </div>
                         </div>

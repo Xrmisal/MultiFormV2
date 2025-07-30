@@ -10,7 +10,8 @@ const store = createStore( {
                 email: '',
                 phone: '',
                 date_of_birth: '',
-                street: '',
+                house_number: '',
+                street_name: '',
                 city: '',
                 postcode: '',
                 step: '',
@@ -28,13 +29,7 @@ const store = createStore( {
     },
     getters: {},
     actions: {
-        /*
-            TODO
-            - Add action to initialise a lead
-            - Add action to update a lead
-            - Add action to 
-            - Add action to complete a lead
-        */    
+
         createLead({ commit }, lead) {
             console.log('entered store')
             commit('createLead', lead)
@@ -59,14 +54,6 @@ const store = createStore( {
         }
     },
     mutations: {
-        /*
-            TODO
-            - Add mutation to update lead data aside from step
-            - Add mutation to update current form fields
-            - Add mutation to increment lead step
-            - Add mutation to change local step
-            - Add mutation to set complete lead
-        */
         createLead(state, lead) {
             state.lead.data = lead
             state.lead.data.step = 2
@@ -93,7 +80,7 @@ const store = createStore( {
                     'last_name', 'email', 'phone']
                     break;
                 case 2:
-                    state.fields = ['date_of_birth', 'street', 'city', 'postcode']
+                    state.fields = ['date_of_birth', 'house_number','street_name', 'city', 'postcode']
                     break;
                 case 3:
                     state.fields = []
