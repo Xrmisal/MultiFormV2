@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email');
             $table->string('phone');
             $table->date('date_of_birth')->nullable();
-            $table->string('street')->nullable();
+            $table->string('house_number')->nullable();
+            $table->string('street_name')->nullable();
             $table->string('city')->nullable();
             $table->string('postcode')->nullable();
-            $table->tinyInteger('step');
             $table->boolean('complete');
             $table->timestamps();
         });

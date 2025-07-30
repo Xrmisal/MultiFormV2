@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Lead extends Model
 {
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'phone',
         'date_of_birth',
-        'street',
+        'house_number',
+        'street_name',
         'city',
         'postcode',
         'step',

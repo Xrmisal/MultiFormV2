@@ -10,60 +10,36 @@ import isValid from 'uk-postcode-validator'
 import axios from 'axios'
 
 const router = useRouter()
+
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
-const errorMsg = ref([])
 const finalStep = computed(() => (lead.value.step === 3))
-const isNewLead = ref(false)
+
+const errorMsg = ref([])
 const valueChange = ref(false)
+
 const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
-        console.log("mounted")
         if(lead.value.data.complete) {
-                console.log("complete lead")
                 router.push({name: 'Complete'})
-        }
-        if (!lead.value.data.step) {
-                console.log("new lead")
-                isNewLead.value = true
-        } else {
-                console.log("existing lead")
         }
 })
 async function nextStep() {
         if(!await areCurrentFieldsValid()) return
-        console.log("next step")
-        if(isNewLead.value) createLead()
-        else if(valueChange.value) {
-                console.log("updating lead")
+        if(valueChange.value) {
                 updateLead()
                 valueChange.value = false
         }
         store.dispatch('nextStep')
 }
 function lastStep() {
-        console.log("last step")
         store.dispatch('lastStep')
-}
-function createLead() {
-        console.log("creating lead")
-        console.log(lead.value.data)
-        store.dispatch('createLead', lead.value.data)
-        .then(() => {
-                isNewLead.value = false
-                console.log("lead created")
-        })
-        .catch((error) => {
-                errorMsg.value.push(error.message)
-                console.log("lead not created")
-        })
 }
 function updateLead() {
         store.dispatch('updateLead', lead.value.data)
         .catch((error) => {
                 errorMsg.value.push(error.message)
-                console.log("lead not updated")
         })
 }
 function fieldName(field) {
@@ -71,7 +47,6 @@ function fieldName(field) {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ')
 }
-
 function hasValue(field) {
         return lead.value.data[field]
 }
@@ -119,8 +94,8 @@ async function hasValidValue(field) {
                                 errorMsg.value.push("House number must be a number")
                                 return false
                         }
-                        if (lead.value.data[field].length < 1) {
-                                errorMsg.value.push("House number must be at least 1 character long")
+                        if (parseInt(lead.value.data[field]) < 1) {
+                                errorMsg.value.push("House number must be greater than 0")
                                 return false
                         }
                         return true
@@ -199,7 +174,7 @@ const progress = computed(() => {
         :style="{ width: progress + '%' }"
         />
         </div>
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md flex-1 flex justify-center px-2-full max-w-s">
+        <div class="mt-10 mx-auto w-full max-w-md px-4">
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
                         Submit Details
                 </header>

@@ -14,7 +14,6 @@ const store = createStore( {
                 street_name: '',
                 city: '',
                 postcode: '',
-                step: '',
                 complete: false
             },
             step: 1,
@@ -31,17 +30,13 @@ const store = createStore( {
     actions: {
 
         createLead({ commit }, lead) {
-            console.log('entered store')
-            commit('createLead', lead)
-            console.log("axios post here")
+            commit('updateLead', lead)
         },
         updateLead({ commit }, lead) {
             commit('updateLead', lead)
-            console.log("axios put here")
         },
         completeLead({ commit }) {
             commit('completeLead')
-            console.log("axios put here")
         },
         nextStep({commit}) {
             commit('nextStep')
@@ -54,10 +49,6 @@ const store = createStore( {
         }
     },
     mutations: {
-        createLead(state, lead) {
-            state.lead.data = lead
-            state.lead.data.step = 2
-        },
         updateLead(state, lead) {
             state.lead.data = lead
         },
@@ -66,9 +57,6 @@ const store = createStore( {
         },
         nextStep(state) {
             state.lead.step++
-            if (state.lead.data.step < state.lead.step) {
-                state.lead.data.step = state.lead.step
-            }
         },
         lastStep(state) {
             state.lead.step--
