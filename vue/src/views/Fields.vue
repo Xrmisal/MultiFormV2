@@ -65,13 +65,24 @@ function updateLead() {
                 console.log("lead not updated")
         })
 }
+function fieldName(field) {
+        return field.split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+}
 
 function hasValue(field) {
         return lead.value.data[field]
 }
 async function hasValidValue(field) {
         switch (field) {
-                case 'name':
+                case 'first_name':
+                        if (lead.value.data[field].length < 3) {
+                                errorMsg.value.push("Name must be at least 3 characters long")
+                                return false
+                        }
+                        return true
+                case 'last_name':
                         if (lead.value.data[field].length < 3) {
                                 errorMsg.value.push("Name must be at least 3 characters long")
                                 return false
@@ -171,7 +182,6 @@ function complete() {
                         Submit Details
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="complete">
-                        <pre class="text-white">{{ lead }} {{ valueChange }}</pre>
                         <Alert v-if="errorMsg.length">
                                 <ul class="list-disc list-inside space-y-1 text-sm">
                                         <li v-for="error in errorMsg">
@@ -185,17 +195,39 @@ function complete() {
                                         
                                 </span>
                         </Alert>
+                        <transition
+                        appear
+                        mode="out-in"
+                        enter-active-class="animate-fade-in-down"
+                        v-if="!finalStep"
+                        >
+                                <div
+                                :key="fields.join('-')" class="space-y-4"
+                                >
+                                        <FieldComponent v-for="field in fields" 
+                                        :key="field"
+                                        :field="field"
+                                        @change="valueChange = true" 
+                                        />
+                                </div>
+                        </transition>
 
-                        <FieldComponent v-for="field in fields" :field="field" @change="valueChange = true" 
-                        class="animate-fade-in-down"/>
                         <div v-if="finalStep">
-                                Yeahhhhhhhhh buddddyyyyyyy
+                                <div class=" text-white text-center animate-fade-in-down">
+                                        <p>Your Details</p>
+                                        <hr>
+                                        <div v-for="(value, field) in lead.data">
+                                                <p v-if="field !== 'step' && field !== 'complete'">{{fieldName(field)}}: {{ value  }}</p>
+                                        </div>
+
+                                </div>
                         </div>
+
                         <div class="flex items-center justify-between">
-                                <button type="button" @click="lastStep" :disabled="lead.step === 1" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3">
+                                <button type="button" @click="lastStep" :disabled="lead.step === 1" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3 whitespace-nowrap">
                                         << Last Step
                                 </button>
-                                <button type="button" @click="nextStep" :disabled="lead.step === 3" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                <button type="button" @click="nextStep" :disabled="lead.step === 3" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 whitespace-nowrap">
                                         Next Step >>
                                 </button>
                         </div>

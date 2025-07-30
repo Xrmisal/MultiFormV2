@@ -5,7 +5,8 @@ const store = createStore( {
     state: {
         lead: {
             data: {
-                name: '',
+                first_name: '',
+                last_name: '',
                 email: '',
                 phone: '',
                 date_of_birth: '',
@@ -19,7 +20,8 @@ const store = createStore( {
 
         },
         fields: [
-            'name',
+            'first_name',
+            'last_name',
             'email',
             'phone'
         ]
@@ -87,7 +89,8 @@ const store = createStore( {
         setFields(state) {
             switch(state.lead.step) {
                 case 1:
-                    state.fields = ['name', 'email', 'phone']
+                    state.fields = ['first_name',
+                    'last_name', 'email', 'phone']
                     break;
                 case 2:
                     state.fields = ['date_of_birth', 'street', 'city', 'postcode']

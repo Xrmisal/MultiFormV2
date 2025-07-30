@@ -8,17 +8,23 @@ defineEmits(['change'])
 
 const lead = computed(() => store.state.lead.data)
 
+function fieldName(field) {
+        return field.split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
+}
+
 </script>
 
 <template>
-    <div v-if="field !== 'date_of_birth'">
+    <div >
         <label
             :for="field"
             class="block text-sm/6 font-medium text-white"
         >
-            {{field.charAt(0).toUpperCase() + field.slice(1) }}
+            {{ fieldName(field) }}
         </label>
-        <div class="mt-2">
+        <div class="mt-2" v-if="field !== 'date_of_birth'">
             <input 
                 :type="field"
                 :name="field"
@@ -46,15 +52,7 @@ const lead = computed(() => store.state.lead.data)
                     "
             />
         </div>
-    </div>
-    <div v-else>
-        <label
-            :for="field"
-            class="block text-sm/6 font-medium text-white"
-        >
-            Date Of Birth
-        </label>
-        <div class="mt-2">
+        <div class="mt-2" v-else>
             <input 
                 type="date" 
                 :name="field" 
@@ -82,4 +80,5 @@ const lead = computed(() => store.state.lead.data)
                 ">
         </div>
     </div>
+
 </template>
