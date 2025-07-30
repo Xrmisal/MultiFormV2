@@ -174,9 +174,20 @@ function complete() {
         })
 }
 
+const progress = computed(() => {
+        const pct = (lead.value.step / 3) * 100
+        return Math.min(100, Math.max(0, pct));
+})
+
 </script>
 
 <template>
+        <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
+        <div
+        class="h-full bg-indigo-600 transition-all duration-300 ease-in-out"
+        :style="{ width: progress + '%' }"
+        />
+        </div>
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md ">
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
                         Submit Details
