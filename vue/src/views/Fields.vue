@@ -199,7 +199,7 @@ const progress = computed(() => {
         :style="{ width: progress + '%' }"
         />
         </div>
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md ">
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md flex-1 flex justify-center px-2-full max-w-s">
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
                         Submit Details
                 </header>

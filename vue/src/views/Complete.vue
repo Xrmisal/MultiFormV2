@@ -15,5 +15,8 @@ onMounted(() => {
 </script>
 
 <template>
-    <h1 class="text-3xl text-white">Complete</h1>
+    <div class="text-center">
+        <h1 class="text-3xl text-white">Completed Submission</h1>
+        <p class="text-white">Your lead has been submitted. You may now close this window.</p>
+    </div>
 </template>

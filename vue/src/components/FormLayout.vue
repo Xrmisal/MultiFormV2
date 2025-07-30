@@ -11,7 +11,7 @@
         </header>
         
         <!-- slot for login/register forms -->
-        <main class="flex-1 flex justify-center px-2-full max-w-s">
+        <main>
             <router-view />
         </main>
         
