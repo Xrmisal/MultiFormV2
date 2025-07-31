@@ -16,17 +16,21 @@ class StoreLeadsRequest extends FormRequest
     {
         return true;
     }
+
     public function rules(): array
     {
+        /** @var \Carbon\Carbon $eighteenYearsAgo */
+        $eighteenYearsAgo = Carbon::tomorrow()->subYears(18)->ToDateString();
+
         return [
             'first_name' => 'required|string|max:30',
             'last_name' => 'required|string|max:30',
             'email' => 'required|email|max:40',
             'phone' => 'required|phone:UK',
-            'date_of_birth' => 'nullable|date|before:' . Carbon::tomorrow()->subYears(18)->toDateString(),
+            'date_of_birth' => 'nullable|date|before:' . $eighteenYearsAgo,
             'house_number' => 'nullable|integer|gt:0',
-            'street_name' => 'nullable|string|max:20',
-            'city' => 'nullable|string',
+            'street_name' => 'nullable|string|max:37',
+            'city' => 'nullable|string|max:58',
             'postcode' => 'nullable|postal_code:GB',
             'complete' => 'required|boolean'
         ];

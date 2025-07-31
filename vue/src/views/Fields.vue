@@ -14,6 +14,10 @@ const router = useRouter()
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
 const finalStep = computed(() => (lead.value.step === 3))
+const newLead = computed(() => {
+        if (localStorage.getItem('vuex')) return false 
+        else return true
+})
 
 const errorMsg = ref([])
 const valueChange = ref(false)
@@ -27,19 +31,44 @@ onMounted(() => {
 })
 async function nextStep() {
         if(!await areCurrentFieldsValid()) return
-        if(valueChange.value) {
-                updateLead()
+        if(valueChange.value || newLead.value) {
+                await updateOrCreateLead(newLead.value)
                 valueChange.value = false
+        } else {
+                store.dispatch('nextStep')
         }
-        store.dispatch('nextStep')
 }
 function lastStep() {
         store.dispatch('lastStep')
 }
-function updateLead() {
-        store.dispatch('updateLead', lead.value.data)
+async function updateOrCreateLead(isNewLead) {
+        if (isNewLead) {
+                store.dispatch('createLead', lead.value.data)
+                .then(() => {
+                        store.dispatch('nextStep')
+                })
+                .catch((error) => {
+                        errorMsg.value.push(error.message)
+                })
+        } else {
+                store.dispatch('updateLead', lead.value.data)
+                .then(() => {
+                        store.dispatch('nextStep')
+                })
+                .catch((error) => {
+                        errorMsg.value.push(error.message)
+                })
+        }
+}
+function completeLead() {
+        lead.value.data.complete = true
+        store.dispatch('completeLead', lead.value.data)
+        .then(() => {
+                router.push({name: 'Complete'})
+        })
         .catch((error) => {
                 errorMsg.value.push(error.message)
+                console.log("lead complete failed")
         })
 }
 function fieldName(field) {
@@ -71,12 +100,7 @@ async function hasValidValue(field) {
                         }
                         return true
                 case 'phone':
-                        let phone = parsePhoneNumberFromString(lead.value.data[field], 'GB')
-                        if (phone ? !phone.isValid() : false) {
-                                errorMsg.value.push("Phone number must be valid")
-                                return false
-                        }
-                        return true
+                        return checkPhoneNumber(lead.value.data[field])
                 case 'date_of_birth':
                         let stripTime = (d) => {
                                 d.setHours(0, 0, 0, 0);
@@ -108,7 +132,6 @@ async function hasValidValue(field) {
                 case 'city':
                         await axios.get(postcodeURL + lead.value.data.postcode.trim().replace(" ", ""))
                         .then((response) => {
-                                console.log(response.data.result)
                                 if (response.data.result.admin_district !== lead.value.data[field]) {
                                         errorMsg.value.push("City does not match postcode")
                                         return false
@@ -132,7 +155,6 @@ async function hasValidValue(field) {
         }
 }
 async function areCurrentFieldsValid() {
-        console.log("validating current fields")
         errorMsg.value = []
         if (!fields.value.every(hasValue)) {
                 errorMsg.value.push("All fields must be completed")
@@ -144,26 +166,26 @@ async function areCurrentFieldsValid() {
                 return false
         }
         }
-        console.log("fields are valid")
         return true
 }
 
-function complete() {
-        console.log("completing lead")
-        store.dispatch('completeLead')
-        .then(() => {
-                router.push({name: 'Complete'})
-        })
-        .catch((error) => {
-                errorMsg.value.push(error.message)
-                console.log("lead complete failed")
-        })
-}
+
+
 
 const progress = computed(() => {
         const pct = (lead.value.step / 3) * 100
         return Math.min(100, Math.max(0, pct));
 })
+
+function checkPhoneNumber(phone) {
+        let phoneNum = parsePhoneNumberFromString(phone, 'GB')
+        if (phoneNum ? !phoneNum.isValid() : false) {
+                errorMsg.value.push("Phone number must be a UK phone number")
+                return false
+        }
+        lead.value.data.phone = phoneNum.formatInternational();
+        return true
+}
 
 </script>
 
@@ -178,7 +200,7 @@ const progress = computed(() => {
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
                         Submit Details
                 </header>
-                <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="complete">
+                <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="completeLead">
                         <Alert v-if="errorMsg.length">
                                 <ul class="list-disc list-inside space-y-1 text-sm">
                                         <li v-for="error in errorMsg">

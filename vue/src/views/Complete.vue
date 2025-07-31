@@ -7,7 +7,6 @@ const router = useRouter()
 
 onMounted(() => {
     if (!store.state.lead.data.complete) {
-        console.log("lead not complete")
         router.push({name: 'Form'})
     }
 })

@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import axiosClient from "../axios";
 
 const store = createStore( {
     state: {
@@ -30,13 +31,23 @@ const store = createStore( {
     actions: {
 
         createLead({ commit }, lead) {
-            commit('updateLead', lead)
+            return axiosClient.post('/leads', lead)
+            .then(() => {
+                commit('updateLead', lead)
+            })
+
         },
         updateLead({ commit }, lead) {
-            commit('updateLead', lead)
+            return axiosClient.put(`/leads/${lead.email}`, lead)
+            .then(() => {
+                commit('updateLead', lead)
+            })
         },
-        completeLead({ commit }) {
-            commit('completeLead')
+        completeLead({ commit }, lead) {
+            return axiosClient.put(`/leads/${lead.email}`, lead)
+            .then(() => {
+                commit('completeLead')
+            })
         },
         nextStep({commit}) {
             commit('nextStep')
