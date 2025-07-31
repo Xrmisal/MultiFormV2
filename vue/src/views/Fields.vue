@@ -79,76 +79,77 @@ function fieldName(field) {
 function hasValue(field) {
         return lead.value.data[field]
 }
-async function hasValidValue(field) {
-        switch (field) {
+async function hasValidValue(fieldName) {
+        const fieldValue = lead.value.data[fieldName]
+        switch (fieldName) {
                 case 'first_name':
-                        if (lead.value.data[field].length < 3) {
-                                errorMsg.value.push("Name must be at least 3 characters long")
-                                return false
-                        }
-                        return true
                 case 'last_name':
-                        if (lead.value.data[field].length < 3) {
-                                errorMsg.value.push("Name must be at least 3 characters long")
+                        if (fieldValue.length < 3) {
+                                errorMsg.value.push(`Name values must be at least 3 characters long`)
+                                return false
+                        } else if (fieldValue.length > 30) {
+                                errorMsg.value.push(`Name values must be less than 30 characters long`)
                                 return false
                         }
                         return true
                 case 'email':
-                        if(!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(lead.value.data[field])){
-                                errorMsg.value.push("Email must be valid")
+                        const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+                        if (!emailRegex.test(fieldValue)) {
+                                errorMsg.value.push('Email must be valid')
+                                return false
+                        } else if (fieldValue.length > 40) {
+                                errorMsg.value.push('Email must be less than 40 characters long')
                                 return false
                         }
                         return true
                 case 'phone':
-                        return checkPhoneNumber(lead.value.data[field])
+                        return checkPhoneNumber(fieldValue)
                 case 'date_of_birth':
-                        let stripTime = (d) => {
-                                d.setHours(0, 0, 0, 0);
-                                return d;
-                        }
-                        let today = new Date()
-                        let eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate())
-                        if (stripTime(new Date(lead.value.data[field])) > eighteenYearsAgo) {
-                                errorMsg.value.push("You must be at least 18 years old")
+                        const tomorrow = new Date()
+                        tomorrow.setDate(tomorrow.getDate() + 1)
+                        const eighteenYearsAgo = new Date(tomorrow.getFullYear() - 18, tomorrow.getMonth(), tomorrow.getDate())
+                        if (new Date(fieldValue).getTime() > eighteenYearsAgo.getTime()) {
+                                errorMsg.value.push('You must be at least 18 years old')
                                 return false
                         }
                         return true
                 case 'house_number':
-                        if(isNaN(lead.value.data[field])) {
-                                errorMsg.value.push("House number must be a number")
-                                return false
-                        }
-                        if (parseInt(lead.value.data[field]) < 1) {
-                                errorMsg.value.push("House number must be greater than 0")
+                        if (isNaN(fieldValue) || fieldValue < 1) {
+                                errorMsg.value.push('House number must be a positive number')
                                 return false
                         }
                         return true
                 case 'street_name':
-                        if (lead.value.data.postcode.length < 3) {
-                                errorMsg.value.push("Street name must be at least 3 characters long")
+                        if (fieldValue.length < 3) {
+                                errorMsg.value.push('Street name must be at least 3 characters long')
+                                return false
+                        } else if (fieldValue.length > 37) {
+                                errorMsg.value.push('Street name can\'t be greater than 37 characters long')
                                 return false
                         }
                         return true
                 case 'city':
-                        await axios.get(postcodeURL + lead.value.data.postcode.trim().replace(" ", ""))
-                        .then((response) => {
-                                if (response.data.result.admin_district !== lead.value.data[field]) {
-                                        errorMsg.value.push("City does not match postcode")
+                        try {
+                                const response = await axios.get(`${postcodeURL}${lead.value.data.postcode.replace(" ", "")}`)
+                                if (response.data.result.admin_district !== fieldValue) {
+                                        errorMsg.value.push('City does not match postcode')
                                         return false
                                 }
-                        })
-                        .catch((error) => {
+                        } catch (error) {
                                 errorMsg.value.push(error.message)
                                 return false
-                        })
-                        if (lead.value.data[field].length < 3) {
-                                errorMsg.value.push("City must be at least 3 characters long")
+                        }
+                        if (fieldValue.length < 3) {
+                                errorMsg.value.push('City must be at least 3 characters long')
+                                return false
+                        } else if (fieldValue.length > 58) {
+                                errorMsg.value.push('City name can\'t be greater than 58 characters long')
                                 return false
                         }
                         return true;
                 case 'postcode':
-                        if (!isValid(lead.value.data[field])) {
-                                errorMsg.value.push("Postcode must be valid")
+                        if (!isValid(fieldValue)) {
+                                errorMsg.value.push('Postcode must be valid')
                                 return false
                         }
                         return true;
@@ -169,9 +170,6 @@ async function areCurrentFieldsValid() {
         return true
 }
 
-
-
-
 const progress = computed(() => {
         const pct = (lead.value.step / 3) * 100
         return Math.min(100, Math.max(0, pct));
@@ -188,7 +186,6 @@ function checkPhoneNumber(phone) {
 }
 
 </script>
-
 <template>
         <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
         <div
