@@ -48,7 +48,7 @@ async function updateOrCreateLead(isNewLead) {
                         store.dispatch('nextStep')
                 })
                 .catch((error) => {
-                        errorMsg.value.push(error.message)
+                        errorMsg.value.push('Email already submitted')
                 })
         } else {
                 store.dispatch('updateLead', lead.value.data)
@@ -68,7 +68,6 @@ function completeLead() {
         })
         .catch((error) => {
                 errorMsg.value.push(error.message)
-                console.log("lead complete failed")
         })
 }
 function fieldName(field) {
