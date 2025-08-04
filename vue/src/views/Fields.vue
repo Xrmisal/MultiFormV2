@@ -18,6 +18,10 @@ const newLead = computed(() => {
         if (localStorage.getItem('vuex')) return false 
         else return true
 })
+const progress = computed(() => {
+        const pct = (lead.value.step / 3) * 100
+        return Math.min(100, Math.max(0, pct));
+})
 
 const errorMsg = ref([])
 const valueChange = ref(false)
@@ -31,12 +35,14 @@ onMounted(() => {
 })
 async function nextStep() {
         if(!await areCurrentFieldsValid()) return
-        if(valueChange.value || newLead.value) {
+        if(valueChange.value) {
                 await updateOrCreateLead(newLead.value)
+                .catch(() => {
+                        return;
+                })
                 valueChange.value = false
-        } else {
-                store.dispatch('nextStep')
         }
+        store.dispatch('nextStep')
 }
 function lastStep() {
         store.dispatch('lastStep')
@@ -44,17 +50,11 @@ function lastStep() {
 async function updateOrCreateLead(isNewLead) {
         if (isNewLead) {
                 store.dispatch('createLead', lead.value.data)
-                .then(() => {
-                        store.dispatch('nextStep')
-                })
-                .catch((error) => {
+                .catch(() => {
                         errorMsg.value.push('Email already submitted')
                 })
         } else {
                 store.dispatch('updateLead', lead.value.data)
-                .then(() => {
-                        store.dispatch('nextStep')
-                })
                 .catch((error) => {
                         errorMsg.value.push(error.message)
                 })
@@ -83,8 +83,8 @@ async function hasValidValue(fieldName) {
         switch (fieldName) {
                 case 'first_name':
                 case 'last_name':
-                        if (fieldValue.length < 3) {
-                                errorMsg.value.push(`Name values must be at least 3 characters long`)
+                        if (fieldValue.length < 2) {
+                                errorMsg.value.push(`Name values must be at least 2 characters long`)
                                 return false
                         } else if (fieldValue.length > 30) {
                                 errorMsg.value.push(`Name values must be less than 30 characters long`)
@@ -169,11 +169,6 @@ async function areCurrentFieldsValid() {
         return true
 }
 
-const progress = computed(() => {
-        const pct = (lead.value.step / 3) * 100
-        return Math.min(100, Math.max(0, pct));
-})
-
 function checkPhoneNumber(phone) {
         let phoneNum = parsePhoneNumberFromString(phone, 'GB')
         if (phoneNum ? !phoneNum.isValid() : false) {
@@ -183,7 +178,6 @@ function checkPhoneNumber(phone) {
         lead.value.data.phone = phoneNum.formatInternational();
         return true
 }
-
 </script>
 <template>
         <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">

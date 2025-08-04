@@ -11,7 +11,7 @@ class LeadController extends Controller
 {
     public function index()
     {
-        return response('Not allowed to see this bud', 501);
+        return response('Not implemented', 501);
     }
     public function store(StoreLeadsRequest $request)
     {
