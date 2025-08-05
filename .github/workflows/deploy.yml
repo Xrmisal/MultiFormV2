@@ -14,12 +14,22 @@ jobs:
         
       - name: Set up SSH
         run: |
+          set -e  # Fail fast on error
+      
+          echo "🔧 Creating .ssh directory..."
           mkdir -p ~/.ssh
-          
-          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          ssh-keyscan -T 5 -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      
+          echo "🔑 Decoding private key..."
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa || { echo "❌ SSH key decode failed"; exit 1; }
+      
+          echo "🔐 Setting permissions..."
+          chmod 600 ~/.ssh/id_rsa || { echo "❌ chmod failed"; exit 1; }
+      
+          echo "🔎 Scanning EC2 host key..."
+          ssh-keyscan -T 5 -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts || { echo "❌ ssh-keyscan failed"; exit 1; }
+      
+          echo "✅ SSH setup complete."
+
 
       - name: Deploy via SSH
         run : |
