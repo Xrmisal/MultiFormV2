@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('leads', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -22,7 +22,10 @@ return new class extends Migration
             $table->string('street_name')->nullable();
             $table->string('city')->nullable();
             $table->string('postcode')->nullable();
+            $table->string('proof_of_id')->nullable();
+            $table->string('proof_of_address')->nullable();
             $table->boolean('complete');
+            $table->boolean("failed");
             $table->timestamps();
         });
     }

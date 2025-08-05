@@ -6,6 +6,7 @@ const store = createStore( {
     state: {
         lead: {
             data: {
+                id: '',
                 first_name: '',
                 last_name: '',
                 email: '',
@@ -15,7 +16,10 @@ const store = createStore( {
                 street_name: '',
                 city: '',
                 postcode: '',
-                complete: false
+                proof_of_id: '',
+                proof_of_address: '',
+                complete: false,
+                failed: false
             },
             step: 1,
 
@@ -31,20 +35,21 @@ const store = createStore( {
     actions: {
 
         createLead({ commit }, lead) {
+            console.log(lead)
             return axiosClient.post('/leads', lead)
-            .then(() => {
-                commit('updateLead', lead)
+            .then((response) => {
+                commit('updateLead', response.data.data)
             })
 
         },
         updateLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead.email}`, lead)
+            return axiosClient.put(`/leads/${lead}`, lead)
             .then(() => {
                 commit('updateLead', lead)
             })
         },
         completeLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead.email}`, lead)
+            return axiosClient.put(`/leads/${lead}`, lead)
             .then(() => {
                 commit('completeLead')
             })
@@ -82,6 +87,8 @@ const store = createStore( {
                     state.fields = ['date_of_birth', 'house_number','street_name', 'city', 'postcode']
                     break;
                 case 3:
+                    state.fields = ['proof_of_id', 'proof_of_address']
+                case 4:
                     state.fields = []
                     break;
             }

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreLeadsRequest;
+use App\Http\Resources\LeadResource;
 use Propaganistas\LaravelPhone\PhoneNumber;
 use App\Models\Lead;
+use Illuminate\Http\Client\Request;
 use Propaganistas\LaravelPhone\Rules\Phone;
 
 class LeadController extends Controller
@@ -21,17 +23,17 @@ class LeadController extends Controller
             return response('Email already exists', 409);
         }
 
-        Lead::updateOrCreate(
+        $lead = Lead::updateOrCreate(
             ['email' => $email, 'complete' => false],
             $request->validated()
         );
 
-        return response()->noContent();
+        return new LeadResource($lead);
     }
+
     public function show(Lead $lead)
     {
-        // TODO: Create code that gets lead by UUID for returning users who are sent email/message with link with said UUID to continue with form
-        return response('Not implemented yet', 501);
+        return new LeadResource($lead);
     }
     public function update(StoreLeadsRequest $request, Lead $lead)
     {

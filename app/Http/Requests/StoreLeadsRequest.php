@@ -32,7 +32,10 @@ class StoreLeadsRequest extends FormRequest
             'street_name' => 'nullable|string|max:37',
             'city' => 'nullable|string|max:58',
             'postcode' => 'nullable|postal_code:GB',
-            'complete' => 'required|boolean'
+            'proof_of_id' => 'nullable|string',
+            'proof_of_address' => 'nullable|string',
+            'complete' => 'required|boolean',
+            'failed' => 'required|boolean'
         ];
     }
     public function messages() {

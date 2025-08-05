@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Lead extends Model
 {
+
+    use HasUuids;
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'first_name',
         'last_name',
@@ -16,10 +21,10 @@ class Lead extends Model
         'street_name',
         'city',
         'postcode',
+        'proof_of_id',
+        'proof_of_address',
         'complete',
+        'failed'
     ];
 
-    public function getRouteKeyName(){
-        return 'email';
-    }
 }

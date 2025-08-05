@@ -13,13 +13,13 @@ const router = useRouter()
 
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
-const finalStep = computed(() => (lead.value.step === 3))
+const finalStep = computed(() => (lead.value.step === 4))
 const newLead = computed(() => {
         if (localStorage.getItem('vuex')) return false 
         else return true
 })
 const progress = computed(() => {
-        const pct = (lead.value.step / 3) * 100
+        const pct = (lead.value.step / 4) * 100
         return Math.min(100, Math.max(0, pct));
 })
 
@@ -50,7 +50,6 @@ async function updateOrCreateLead(isNewLead) {
         if (isNewLead) {
                 await store.dispatch('createLead', lead.value.data)
                 .catch((error) => {
-                        console.log(error)
                         errorMsg.value.push(error.response.data)
                 })
         } else {
