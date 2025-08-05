@@ -12,6 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
+      - name: Debug EC2 Host
+        run: |
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then
+            echo "❌ EC2_HOST is missing!"
+            exit 1
+          else
+            echo "✅ EC2_HOST is set to ${{ secrets.EC2_HOST }}"
+          fi
+
       - name: Debug Secrets
         run: |
           if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
