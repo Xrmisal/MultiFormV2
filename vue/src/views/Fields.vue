@@ -37,26 +37,26 @@ async function nextStep() {
         if(!await areCurrentFieldsValid()) return
         if(valueChange.value) {
                 await updateOrCreateLead(newLead.value)
-                .catch(() => {
-                        return;
-                })
-                valueChange.value = false
         }
-        store.dispatch('nextStep')
+        if (!errorMsg.value.length) {
+                valueChange.value = false
+                store.dispatch('nextStep')
+        }
 }
 function lastStep() {
         store.dispatch('lastStep')
 }
 async function updateOrCreateLead(isNewLead) {
         if (isNewLead) {
-                store.dispatch('createLead', lead.value.data)
-                .catch(() => {
-                        errorMsg.value.push('Email already submitted')
+                await store.dispatch('createLead', lead.value.data)
+                .catch((error) => {
+                        console.log(error)
+                        errorMsg.value.push(error.response.data)
                 })
         } else {
-                store.dispatch('updateLead', lead.value.data)
+                await store.dispatch('updateLead', lead.value.data)
                 .catch((error) => {
-                        errorMsg.value.push(error.message)
+                        errorMsg.value.push(error.response.data)
                 })
         }
 }
@@ -67,7 +67,7 @@ function completeLead() {
                 router.push({name: 'Complete'})
         })
         .catch((error) => {
-                errorMsg.value.push(error.message)
+                errorMsg.value.push(error.response.data)
         })
 }
 function fieldName(field) {

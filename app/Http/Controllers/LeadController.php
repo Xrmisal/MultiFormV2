@@ -18,7 +18,7 @@ class LeadController extends Controller
         $email = $request->input('email');
 
         if (Lead::where('email', $email)->where('complete', true)->exists()) {
-            return response('Email already submitted', 409);
+            return response('Email already exists', 409);
         }
 
         Lead::updateOrCreate(
@@ -31,7 +31,7 @@ class LeadController extends Controller
     public function show(Lead $lead)
     {
         // TODO: Create code that gets lead by UUID for returning users who are sent email/message with link with said UUID to continue with form
-        return response('Not implemented', 501);
+        return response('Not implemented yet', 501);
     }
     public function update(StoreLeadsRequest $request, Lead $lead)
     {
