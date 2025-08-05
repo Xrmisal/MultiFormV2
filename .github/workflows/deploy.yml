@@ -12,25 +12,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         
-      - name: Debug EC2 Host
-        run: |
-          if [ -z "${{ secrets.EC2_HOST }}" ]; then
-            echo "❌ EC2_HOST is missing!"
-            exit 1
-          else
-            echo "✅ EC2_HOST is set to ${{ secrets.EC2_HOST }}"
-          fi
-
-      - name: Debug Secrets
-        run: |
-          if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
-            echo "SSH Key is empty or not set!"
-            exit 1
-          else
-            echo "SSH Key is set."
-          fi
-
-
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -38,7 +19,7 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -T 5 -t rsa ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy via SSH
         run : |
