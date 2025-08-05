@@ -17,7 +17,7 @@ jobs:
           set -e
           mkdir -p ~/.ssh
           
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_SSH_KEY }}" | tee ~/.ssh/id_rsa >/dev/null
           chmod 600 ~/.ssh/id_rsa
           
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
