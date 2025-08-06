@@ -22,9 +22,11 @@ class LeadController extends Controller
     {
         $data = $request->validated();
 
-        if (Lead::where('email', $data['email'])->where('complete', true)->exists()) {
+        if (Lead::where('email', $data['email'])->where('complete', true)->exists() || Lead::where('email', $data['email'])->where('failed', true)->exists()) {
             return response('Email already exists', 409);
         }
+
+
         if ($lead = Lead::where('email', $data['email'])->first()) {
             $this->update($request, $lead);
             return new LeadResource($lead);
@@ -55,7 +57,17 @@ class LeadController extends Controller
 
     public function show(Lead $lead)
     {
-        return new LeadResource($lead);
+        if ($lead->complete && $lead->failed) {
+            $lead->complete = false;
+            File::delete(storage_path($lead->proof_of_id));
+            File::delete(storage_path($lead->proof_of_address));
+            $lead->proof_of_id = null;
+            $lead->proof_of_address = null;
+            $lead->save();
+            return new LeadResource($lead);
+        } else {
+            return response('Cannot get submission details', 403);
+        }        
     }
     public function update(StoreLeadsRequest $request, Lead $lead)
     {

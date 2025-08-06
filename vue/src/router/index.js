@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import FormLayout from "../components/FormLayout.vue";
 import Fields from "../views/Fields.vue";
 import Complete from "../views/Complete.vue";
-import store from "../store";
+import FourOhFour from "../views/404.vue";
 
 const routes = [
     {
@@ -15,6 +15,17 @@ const routes = [
                 path: '/form',
                 name: 'Form',
                 component: Fields
+            },
+            {
+                path: '/form/:id',
+                name: 'ResubmitForm',
+                component: Fields
+            },
+            {
+                path: '/404',
+                name: '404',
+                component: FourOhFour
+
             },
             {
                 path: '/form/complete',

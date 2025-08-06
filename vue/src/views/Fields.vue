@@ -3,21 +3,22 @@ import { computed, ref } from 'vue';
 import store from '../store';
 import Alert from '../components/Alert.vue'
 import FieldComponent from '../components/FieldComponent.vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute} from 'vue-router';
 import { onMounted } from 'vue';
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import isValid from 'uk-postcode-validator'
 import axios from 'axios'
 
 const router = useRouter()
+const route = useRoute()
 
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
+const reload = computed(() => store.state.reload);
 const finalStep = computed(() => (lead.value.step === 4))
-const newLead = computed(() => {
-        if (localStorage.getItem('vuex')) return false 
-        else return true
-})
+const newLead = computed(() => localStorage.getItem('vuex') ? false : true)
+const loading = computed(() => store.state.loading)
+
 const progress = computed(() => {
         const pct = (lead.value.step / 4) * 100
         return Math.min(100, Math.max(0, pct));
@@ -29,12 +30,20 @@ const valueChange = ref(false)
 const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
+        if(route.params.id && !reload.value) {
+                store.dispatch('loadLead', route.params.id)
+                .catch(() => {
+                        localStorage.removeItem('vuex')
+                        router.push({name: '404'})
+
+                })
+        }
         if(lead.value.data.complete) {
                 router.push({name: 'Complete'})
         }
 })
 async function nextStep() {
-        console.log("nextStep")
+        console.log(newLead.value)
         if(!await areCurrentFieldsValid()) return
         if(valueChange.value) {
                 await updateOrCreateLead(newLead.value)
@@ -62,6 +71,7 @@ async function updateOrCreateLead(isNewLead) {
 }
 function completeLead() {
         lead.value.data.complete = true
+        lead.value.data.failed = false
         store.dispatch('completeLead', lead.value.data)
         .then(() => {
                 router.push({name: 'Complete'})
@@ -194,9 +204,10 @@ function checkPhoneNumber(phone) {
                 :style="{ width: progress + '%' }"
                 />
         </div>
-        <div class="mt-10 mx-auto w-full max-w-md px-4">
+        <div v-if="loading">Loading...</div>
+        <div class="mt-10 mx-auto w-full max-w-md px-4" v-else>
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
-                        Submit Details
+                        {{ reload ? 'Resubmit Details' : 'Submit Details' }}
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="completeLead">
                         <Alert v-if="errorMsg.length">
@@ -234,7 +245,7 @@ function checkPhoneNumber(phone) {
                                         <p>Your Details</p>
                                         <hr>
                                         <div v-for="(value, field) in lead.data">
-                                                <p v-if="!['id', 'complete', 'proof_of_id', 'proof_of_address'].includes(field)">{{fieldName(field)}}: {{ value  }}</p>
+                                                <p v-if="!['id', 'complete', 'proof_of_id', 'proof_of_address', 'failed'].includes(field)">{{fieldName(field)}}: {{ value  }}</p>
                                         </div>
                                         <div>
                                                 <p>Proof Sent</p>

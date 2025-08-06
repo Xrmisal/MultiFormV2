@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import axiosClient from "../axios";
+import axios from "axios";
 
 const store = createStore( {
     state: {
@@ -19,22 +20,36 @@ const store = createStore( {
                 proof_of_id: '',
                 proof_of_address: '',
                 complete: false,
+                failed: false,
             },
             step: 1,
-
         },
         fields: [
             'first_name',
             'last_name',
             'email',
             'phone'
-        ]
+        ],
+        reload: false,
+        loading: false
     },
     getters: {},
     actions: {
 
+        loadLead({ commit }, id) {
+            commit('setStateLoading', true)
+            return axiosClient.get(`/leads/${id}`, id)
+            .then((response) => {
+                commit(`updateLead`, response.data.data);
+                commit(`setReload`, true)
+                commit ('setStateLoading', false)
+            })
+            .catch(() => {
+                commit('setStateLoading', false)
+                throw('error')
+            })
+        },
         createLead({ commit }, lead) {
-            console.log(lead)
             return axiosClient.post('/leads', lead)
             .then((response) => {
                 commit('updateLead', response.data.data)
@@ -65,8 +80,14 @@ const store = createStore( {
         }
     },
     mutations: {
+        setStateLoading(state, loading) {
+        state.loading = loading  
+        },
         updateLead(state, lead) {
             state.lead.data = lead
+        },
+        setReload(state, reload) {
+            state.reload = reload
         },
         completeLead(state) {
             state.lead.data.complete = true
