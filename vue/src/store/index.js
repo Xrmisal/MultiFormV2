@@ -42,13 +42,14 @@ const store = createStore( {
 
         },
         updateLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead}`, lead)
+            return axiosClient.put(`/leads/${lead.id}`, lead
+            )
             .then(() => {
                 commit('updateLead', lead)
             })
         },
         completeLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead}`, lead)
+            return axiosClient.put(`/leads/${lead.id}`, lead)
             .then(() => {
                 commit('completeLead')
             })
@@ -87,6 +88,7 @@ const store = createStore( {
                     break;
                 case 3:
                     state.fields = ['proof_of_id', 'proof_of_address']
+                    break;
                 case 4:
                     state.fields = []
                     break;

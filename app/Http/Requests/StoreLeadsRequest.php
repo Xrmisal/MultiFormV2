@@ -35,7 +35,7 @@ class StoreLeadsRequest extends FormRequest
             'proof_of_id' => 'nullable|string',
             'proof_of_address' => 'nullable|string',
             'complete' => 'required|boolean',
-            'failed' => 'required|boolean'
+            'failed' => 'nullable|boolean'
         ];
     }
     public function messages() {

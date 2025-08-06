@@ -129,7 +129,7 @@ class LeadController extends Controller
         if(!File::exists($absolutePath)) {
             File::makeDirectory($absolutePath, 0755, true);
         }
-        file_put_contents($relativePath, $image);
+        file_put_contents($absolutePath . $file, $image);
 
         return $relativePath;
     }

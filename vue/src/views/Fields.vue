@@ -34,6 +34,7 @@ onMounted(() => {
         }
 })
 async function nextStep() {
+        console.log("nextStep")
         if(!await areCurrentFieldsValid()) return
         if(valueChange.value) {
                 await updateOrCreateLead(newLead.value)
@@ -151,6 +152,14 @@ async function hasValidValue(fieldName) {
                                 return false
                         }
                         return true;
+                case'proof_of_id':
+                case'proof_of_address':
+                        const allowedInputs = /^data:image\/(?:png|jpe?g);base64,/i
+                        if (!allowedInputs.test(fieldValue)) {
+                                errorMsg.value.push('File must be a jpg, jpeg or png')
+                                return false
+                        }
+                        return true
         }
 }
 async function areCurrentFieldsValid() {
@@ -180,10 +189,10 @@ function checkPhoneNumber(phone) {
 </script>
 <template>
         <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
-        <div
-        class="h-full bg-indigo-600 transition-all duration-300 ease-in-out"
-        :style="{ width: progress + '%' }"
-        />
+                <div
+                class="h-full bg-indigo-600 transition-all duration-300 ease-in-out"
+                :style="{ width: progress + '%' }"
+                />
         </div>
         <div class="mt-10 mx-auto w-full max-w-md px-4">
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
@@ -225,8 +234,10 @@ function checkPhoneNumber(phone) {
                                         <p>Your Details</p>
                                         <hr>
                                         <div v-for="(value, field) in lead.data">
-                                                <p v-if="field !== 'step' && field !== 'complete'">{{fieldName(field)}}: {{ value  }}</p>
-
+                                                <p v-if="!['id', 'complete', 'proof_of_id', 'proof_of_address'].includes(field)">{{fieldName(field)}}: {{ value  }}</p>
+                                        </div>
+                                        <div>
+                                                <p>Proof Sent</p>
                                         </div>
 
 
@@ -237,7 +248,7 @@ function checkPhoneNumber(phone) {
                                 <button type="button" @click="lastStep" :disabled="lead.step === 1" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mr-3 whitespace-nowrap">
                                         << Last Step
                                 </button>
-                                <button type="button" @click="nextStep" :disabled="lead.step === 3" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 whitespace-nowrap">
+                                <button type="button" @click="nextStep" :disabled="lead.step === 4" class="flex w-full justify-center rounded-md bg-gray-900 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 whitespace-nowrap">
                                         Next Step >>
                                 </button>
                         </div>
