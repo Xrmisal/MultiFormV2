@@ -25,7 +25,8 @@ return new class extends Migration
             $table->string('proof_of_id')->nullable();
             $table->string('proof_of_address')->nullable();
             $table->boolean('complete');
-            $table->boolean("failed");
+            $table->boolean("failed")->nullable();
+            $table->boolean("converted")->nullable();
             $table->timestamps();
         });
     }

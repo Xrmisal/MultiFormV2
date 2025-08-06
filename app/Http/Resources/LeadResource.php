@@ -28,7 +28,6 @@ class LeadResource extends JsonResource
             'proof_of_id' => $this->proof_of_id,
             'proof_of_address' => $this->proof_of_address,
             'complete' => $this->complete,
-            'failed' => $this->failed
         ];
     }
 }

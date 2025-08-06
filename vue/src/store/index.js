@@ -19,7 +19,6 @@ const store = createStore( {
                 proof_of_id: '',
                 proof_of_address: '',
                 complete: false,
-                failed: false
             },
             step: 1,
 
