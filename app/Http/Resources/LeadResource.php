@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\URL;
 
 class LeadResource extends JsonResource
 {
@@ -25,8 +26,8 @@ class LeadResource extends JsonResource
             'street_name' => $this->street_name,
             'city' => $this->city,
             'postcode' => $this->postcode,
-            'proof_of_id' => $this->proof_of_id,
-            'proof_of_address' => $this->proof_of_address,
+            'proof_of_id' => $this->proof_of_id ? URL::to($this->proof_of_id) : null,
+            'proof_of_address' => $this->proof_of_address ? URL::to($this->proof_of_address) : null,
             'complete' => $this->complete,
         ];
     }

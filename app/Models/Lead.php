@@ -24,7 +24,8 @@ class Lead extends Model
         'proof_of_id',
         'proof_of_address',
         'complete',
-        'failed'
+        'failed',
+        'converted'
     ];
 
 }
