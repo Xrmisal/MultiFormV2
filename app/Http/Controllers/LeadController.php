@@ -20,13 +20,15 @@ class LeadController extends Controller
     }
     public function store(StoreLeadsRequest $request)
     {
-        $email = $request->input('email');
+        $data = $request->validated();
 
-        if (Lead::where('email', $email)->where('complete', true)->exists()) {
+        if (Lead::where('email', $data['email'])->where('complete', true)->exists()) {
             return response('Email already exists', 409);
         }
-
-        $data = $request->validated();
+        if ($lead = Lead::where('email', $data['email'])->first()) {
+            $this->update($request, $lead);
+            return new LeadResource($lead);
+        }
 
         if (isset($data['proof_of_id'])) {
             try {
@@ -45,10 +47,8 @@ class LeadController extends Controller
                 return response($e ,400);
             }
         }
-        $lead = Lead::updateOrCreate(
-            ['email' => $email, 'complete' => false],
-            $data
-        );
+
+        $lead = Lead::create($data);
 
         return new LeadResource($lead);
     }
