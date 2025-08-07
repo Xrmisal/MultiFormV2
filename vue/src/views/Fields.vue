@@ -31,11 +31,10 @@ const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
         if(route.params.id && !reload.value) {
+                localStorage.removeItem('vuex')
                 store.dispatch('loadLead', route.params.id)
                 .catch(() => {
-                        localStorage.removeItem('vuex')
                         router.push({name: '404'})
-
                 })
         }
         if(lead.value.data.complete) {
@@ -43,7 +42,6 @@ onMounted(() => {
         }
 })
 async function nextStep() {
-        console.log(newLead.value)
         if(!await areCurrentFieldsValid()) return
         if(valueChange.value) {
                 await updateOrCreateLead(newLead.value)
@@ -196,6 +194,10 @@ function checkPhoneNumber(phone) {
         lead.value.data.phone = phoneNum.formatInternational();
         return true
 }
+function setErrorMsg(error) {
+        errorMsg.value = []
+        errorMsg.value.push(error)
+}
 </script>
 <template>
         <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
@@ -235,7 +237,8 @@ function checkPhoneNumber(phone) {
                                         <FieldComponent v-for="field in fields" 
                                         :key="field"
                                         :field="field"
-                                        @change="valueChange = true" 
+                                        @change="valueChange = true"
+                                        @error="setErrorMsg"
                                         />
                                 </div>
                         </transition>

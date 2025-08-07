@@ -9,6 +9,7 @@ onMounted(() => {
     if (!store.state.lead.data.complete) {
         router.push({name: 'Form'})
     }
+    localStorage.removeItem('vuex')
 })
 
 </script>

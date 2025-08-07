@@ -1,17 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue';
 import store from '../store';
+
 defineProps({
     field: String,
 })
-defineEmits(['change'])
+const emit = defineEmits(['change', 'error'])
 
 const lead = computed(() => store.state.lead.data)
-
-const images = ref({
-        proof_of_id: null,
-        proof_of_address: null
-})
 
 function fieldName(field) {
         return field.split('_')
@@ -21,7 +17,12 @@ function fieldName(field) {
 
 function onImageChoose(ev, field) {
     const file = ev.target.files[0];
-    
+    const maxBytes = 2 * 1024 * 1024
+    if(file.size > maxBytes) {
+        emit('error', 'File too large, max 2MB')
+        ev.target.value = ''
+        return
+    }
     const reader = new FileReader();
     reader.onload = () => {
         lead.value[field] = reader.result
