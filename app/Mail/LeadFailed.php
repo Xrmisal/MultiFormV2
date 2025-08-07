@@ -7,6 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Headers;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 use App\Models\Lead;
 
@@ -24,23 +26,15 @@ class LeadFailed extends Mailable
         $this->lead = $lead;
     }
 
-    public function build() {
-        return $this
-            ->subject('Submission failure')
-            ->markdown('mail.lead-failed')
-            ->with([
-                'lead' => $this->lead
-            ]);
-    }
-
     /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Lead Failed',
-        );
+    return new Envelope(
+        subject: 'Action Required: Resubmit Your Details',
+        from: new Address('no-reply@sensiblegroup.com', 'Harley'),
+    );
     }
 
     /**
@@ -50,6 +44,9 @@ class LeadFailed extends Mailable
     {
         return new Content(
             markdown: 'mail.lead-failed',
+            with: [
+                'lead' => $this->lead
+            ]
         );
     }
 
