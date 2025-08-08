@@ -15,6 +15,7 @@ class LeadResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
         return [
             'id' => $this->id,
             'first_name' => $this->first_name,
@@ -26,8 +27,8 @@ class LeadResource extends JsonResource
             'street_name' => $this->street_name,
             'city' => $this->city,
             'postcode' => $this->postcode,
-            'proof_of_id' => base64_encode(URL::asset($this->proof_of_id)),
-            'proof_of_address' => base64_encode(URL::asset($this->proof_of_address)),
+            'proof_of_id' => '',
+            'proof_of_address' => '',
             'complete' => $this->complete,
             'failed' => $this->failed
         ];
