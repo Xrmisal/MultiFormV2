@@ -16,7 +16,7 @@ const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
 const reload = computed(() => store.state.reload);
 const finalStep = computed(() => (lead.value.step === 4))
-const newLead = computed(() => localStorage.getItem('vuex') ? false : true)
+const newLead = computed(() => localStorage.getItem('vuex') !== null ? false : true)
 const loading = computed(() => store.state.loading)
 
 const progress = computed(() => {

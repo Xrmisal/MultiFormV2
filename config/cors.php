@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => env('APP_ENV') === 'testing'
     ? ['*']
-    : explode(',', env('FRONTEND_URL', '')),
+    : explode(',', env('FRONTEND_URL', default: '')),
 
     'allowed_origins_patterns' => [],
 

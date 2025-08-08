@@ -17,7 +17,7 @@ function fieldName(field) {
 
 function onImageChoose(ev, field) {
     const file = ev.target.files[0];
-    const maxBytes = 2 * 1024 * 1024
+    const maxBytes = 2 * 1000 * 1000
     if(file.size > maxBytes) {
         emit('error', 'File too large, max 2MB')
         ev.target.value = ''
