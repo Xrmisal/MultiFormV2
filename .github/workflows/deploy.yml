@@ -15,6 +15,7 @@ jobs:
       - name: Deploy to local filesystem
         run: |
           cd /var/www/api
-          sudo git pull origin main
+          git fetch origin
+          git reset --hard origin/main   
           sudo composer install --no-dev --optimize-autoloader
   
