@@ -27,8 +27,8 @@ class LeadResource extends JsonResource
             'street_name' => $this->street_name,
             'city' => $this->city,
             'postcode' => $this->postcode,
-            'proof_of_id' => '',
-            'proof_of_address' => '',
+            'proof_of_id' => $this->proof_of_id,
+            'proof_of_address' => $this->proof_of_address,
             'complete' => $this->complete,
             'failed' => $this->failed
         ];
