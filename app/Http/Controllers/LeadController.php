@@ -75,7 +75,7 @@ class LeadController extends Controller
         if($lead->complete && !$lead->failed) {
             return response('Cannot update completed submission', 403);
         }
-        if($data['complete'] == true) {
+        if($data['complete'] == false) {
             if (isset($data['proof_of_id'])) {
                 try {
                     $relativePath = $this->storeImage($data['proof_of_id']);
