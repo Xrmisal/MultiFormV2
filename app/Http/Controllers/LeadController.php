@@ -75,32 +75,35 @@ class LeadController extends Controller
         if($lead->complete && !$lead->failed) {
             return response('Cannot update completed submission', 403);
         }
-        
-        if (isset($data['proof_of_id'])) {
-            try {
-                $relativePath = $this->storeImage($data['proof_of_id']);
-                $data['proof_of_id'] = $relativePath;
-            } catch(Exception $e) {
-                return response($e ,400);
+        if(!isset($data['complete'])) {
+            if (isset($data['proof_of_id'])) {
+                try {
+                    $relativePath = $this->storeImage($data['proof_of_id']);
+                    $data['proof_of_id'] = $relativePath;
+                } catch(Exception $e) {
+                    return response($e ,400);
+                }
+                if($lead->proof_of_id) {
+                    $absolutePath = storage_path($lead->proof_of_id);
+                    File::delete($absolutePath);
+                }
             }
-            if($lead->proof_of_id) {
-                $absolutePath = storage_path($lead->proof_of_id);
-                File::delete($absolutePath);
+
+            if (isset($data['proof_of_address'])) {
+                try {
+                    $relativePath = $this->storeImage($data['proof_of_address']);
+                    $data['proof_of_address'] = $relativePath;
+                } catch(Exception $e) {
+                    return response($e ,400);
+                }
+                if($lead->proof_of_address) {
+                    $absolutePath = storage_path($lead->proof_of_address);
+                    File::delete($absolutePath);
+                }
             }
         }
 
-        if (isset($data['proof_of_address'])) {
-            try {
-                $relativePath = $this->storeImage($data['proof_of_address']);
-                $data['proof_of_address'] = $relativePath;
-            } catch(Exception $e) {
-                return response($e ,400);
-            }
-            if($lead->proof_of_address) {
-                $absolutePath = storage_path($lead->proof_of_address);
-                File::delete($absolutePath);
-            }
-        }
+
 
         $lead->update($data);
 
