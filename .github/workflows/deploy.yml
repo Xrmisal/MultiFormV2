@@ -19,7 +19,7 @@ jobs:
           --exclude 'node_modules' \
           --exclude 'vendor' \
           --exclude 'storage' \
-          "$GITHUB_WORKSPACE" /var/www/api
+          "$GITHUB_WORKSPACE/" /var/www/api
       - name: Install deps and reload
         run: |
           cd /var/www/api
