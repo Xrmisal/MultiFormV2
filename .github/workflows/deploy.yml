@@ -21,7 +21,6 @@ jobs:
           --exclude 'storage' \
           --exclude '.env' \
           --chown ubuntu:www-data \
-          --chmod=D2775, F664 \
           "$GITHUB_WORKSPACE/" /var/www/api
       - name: Install deps and reload
         run: |
