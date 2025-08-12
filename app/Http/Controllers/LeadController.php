@@ -113,7 +113,7 @@ class LeadController extends Controller
     private function storeImageForLead(Lead $lead, UploadedFile $file, string $kind) {
         $dir = "images/leads/{$lead->id}";
         $ext = strtolower($file->guessExtension() ? : 'bin');
-        $name = "{$kind}_" . ".{$ext}";
+        $name = "{$kind}" . ".{$ext}";
 
         return $file->storeAs($dir, $name);
     }

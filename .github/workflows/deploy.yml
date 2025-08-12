@@ -20,10 +20,15 @@ jobs:
           --exclude 'vendor' \
           --exclude 'storage' \
           --exclude '.env' \
+          --chown ubuntu:www-data \
+          --chmod=D2775, F664 \
           "$GITHUB_WORKSPACE/" /var/www/api
       - name: Install deps and reload
         run: |
           cd /var/www/api
           composer install --no-dev -o
           sudo systemctl reload nginx
+      - name: Ensure writable dirs
+        run: |
+          sudo chmod -R 2775 /var/www/api/bootstrap/cache /var/www/api/storage
           

@@ -8,19 +8,39 @@ const lead = computed(() => store.state.lead.data)
 
 const previews = ref({})
 
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png'])
+const ALLOWED_EXT = new Set(['jpg', 'jpeg', 'png'])
+
+const getExt = (name) => (name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? '')
+
+async function isRealJpegOrPng(file) {
+    const head = new Uint8Array(await file.slice(0, 8).arrayBuffer())
+    const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff
+    const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47 && head[4] === 0x0d && head[5] === 0x0a && head[6] === 0x1a && head[7] === 0x0a
+    return isJpeg || isPng
+}
+
 function fieldName(field) {
         return field.split('_')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ')
 }
 
-function onImageChoose(ev, field) {
+async function onImageChoose(ev, field) {
     const file = ev.target.files?.[0];
     if(!file) return;
 
     const maxBytes = 2 * 1000 * 1000
     if(file.size > maxBytes) {
         emit('error', 'File too large, max 2MB')
+        ev.target.value = ''
+        return
+    }
+
+    const extOK = ALLOWED_EXT.has(getExt(file.name))
+    const mimeOK = file.type ? ALLOWED_MIME.has(file.type) : true
+    if(!extOK || !mimeOK || !(await isRealJpegOrPng(file))) {
+        emit('error', 'Invalid file type, must be JPG/JPEG or PNG')
         ev.target.value = ''
         return
     }
@@ -99,7 +119,7 @@ function onImageChoose(ev, field) {
             <img :v-if="previews[field]" :src="previews[field]" class="mt-2 max-h-48 rounded"/>
             <input 
                 type="file" 
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,image/jpeg,image/png"
                 @change="onImageChoose($event, field)"
                 required
                 class="
