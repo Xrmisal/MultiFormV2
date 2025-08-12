@@ -12,10 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to local filesystem
+      - name: Sync to /var/www/api
+        run: |
+          sudo rsync -a --delete \
+          --exclude '.git' \
+          --exclude 'node_modules' \
+          --exclude 'vendor' \
+          --exclude 'storage' \
+          "$GITHUB_WORKSPACE" /var/www/api
+      - name: Install deps and reload
         run: |
           cd /var/www/api
-          git fetch origin
-          git reset --hard origin/main   
-          sudo composer install --no-dev --optimize-autoloader
+          composer install --no-dev -o
+          sudo systemctl reload nginx
           
