@@ -211,7 +211,6 @@ function onFile({field, file}) {
                         {{ reload ? 'Resubmit Details' : 'Submit Details' }}
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="completeLead">
-                        <pre class="text-white">{{lead}}</pre>
                         <Alert v-if="errorMsg.length">
                                 <ul class="list-disc list-inside space-y-1 text-sm">
                                         <li v-for="error in errorMsg">
