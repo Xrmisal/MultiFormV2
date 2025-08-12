@@ -16,7 +16,6 @@ const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
 const reload = computed(() => store.state.reload);
 const finalStep = computed(() => (lead.value.step === 4))
-const newLead = computed(() => lead.value.data.id ? false : true)
 const loading = computed(() => store.state.loading)
 
 const progress = computed(() => {
@@ -37,14 +36,14 @@ onMounted(() => {
                         router.push({name: '404'})
                 })
         }
-        if(lead.value.data.complete) {
+        if(lead.value.data.complete === true) {
                 router.push({name: 'Complete'})
         }
 })
 async function nextStep() {
         if(!await areCurrentFieldsValid()) return
         if(valueChange.value) {
-                await updateOrCreateLead(newLead.value)
+                await updateOrCreateLead()
         }
         if (!errorMsg.value.length) {
                 valueChange.value = false
@@ -54,23 +53,24 @@ async function nextStep() {
 function lastStep() {
         store.dispatch('lastStep')
 }
-async function updateOrCreateLead(isNewLead) {
+async function updateOrCreateLead() {
+        const isNewLead = !store.state.lead.data.id;
         if (isNewLead) {
-                await store.dispatch('createLead', lead.value.data)
+                await store.dispatch('createLead')
                 .catch((error) => {
                         errorMsg.value.push(error.response.data)
                 })
         } else {
-                await store.dispatch('updateLead', lead.value.data)
+                await store.dispatch('updateLead')
                 .catch((error) => {
-                        errorMsg.value.push(error.response.data)
+                        errorMsg.value.push(error.response)
                 })
         }
 }
 function completeLead() {
         lead.value.data.complete = true
         lead.value.data.failed = false
-        store.dispatch('completeLead', lead.value.data)
+        store.dispatch('updateLead')
         .then(() => {
                 router.push({name: 'Complete'})
         })
@@ -160,19 +160,13 @@ async function hasValidValue(fieldName) {
                                 return false
                         }
                         return true;
-                case'proof_of_id':
-                case'proof_of_address':
-                        const allowedInputs = /^data:image\/(?:png|jpe?g);base64,/i
-                        if (!allowedInputs.test(fieldValue)) {
-                                errorMsg.value.push('File must be a jpg, jpeg or png')
-                                return false
-                        }
+                default:
                         return true
         }
 }
 async function areCurrentFieldsValid() {
         errorMsg.value = []
-        if (!fields.value.every(hasValue)) {
+        if (!fields.value.every(f => store.getters.hasFieldValue(f))) {
                 errorMsg.value.push("All fields must be completed")
                 return false
         }
@@ -198,6 +192,11 @@ function setErrorMsg(error) {
         errorMsg.value = []
         errorMsg.value.push(error)
 }
+function onFile({field, file}) {
+        if (['proof_of_id', 'proof_of_address'].includes(field)) {
+                store.commit('setFile', {field, file})
+        }
+}
 </script>
 <template>
         <div class="fixed top-0 left-0 w-full h-1 bg-gray-200 z-50">
@@ -212,6 +211,7 @@ function setErrorMsg(error) {
                         {{ reload ? 'Resubmit Details' : 'Submit Details' }}
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="completeLead">
+                        <pre class="text-white">{{lead}}</pre>
                         <Alert v-if="errorMsg.length">
                                 <ul class="list-disc list-inside space-y-1 text-sm">
                                         <li v-for="error in errorMsg">
@@ -234,9 +234,10 @@ function setErrorMsg(error) {
                                 <div
                                 :key="fields.join('-')" class="space-y-4"
                                 >
-                                        <FieldComponent v-for="field in fields" 
+                                        <FieldComponent v-for="field in fields"
                                         :key="field"
                                         :field="field"
+                                        @file="onFile"
                                         @change="valueChange = true"
                                         @error="setErrorMsg"
                                         />

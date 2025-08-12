@@ -2,12 +2,11 @@
 import { computed, ref } from 'vue';
 import store from '../store';
 
-defineProps({
-    field: String,
-})
-const emit = defineEmits(['change', 'error'])
-
+const props = defineProps({ field: String})
+const emit = defineEmits(['change', 'error', 'file'])
 const lead = computed(() => store.state.lead.data)
+
+const previews = ref({})
 
 function fieldName(field) {
         return field.split('_')
@@ -16,19 +15,20 @@ function fieldName(field) {
 }
 
 function onImageChoose(ev, field) {
-    const file = ev.target.files[0];
+    const file = ev.target.files?.[0];
+    if(!file) return;
+
     const maxBytes = 2 * 1000 * 1000
     if(file.size > maxBytes) {
         emit('error', 'File too large, max 2MB')
         ev.target.value = ''
         return
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-        lead.value[field] = reader.result
 
-    }
-    reader.readAsDataURL(file);
+    emit('file', {field, file})
+    emit('change')
+    
+    previews.value[field] = URL.createObjectURL(file)
 }
 </script>
 
@@ -96,12 +96,12 @@ function onImageChoose(ev, field) {
                 ">
         </div>
         <div class="mt-2" v-else>
-            <img :v-model="lead[field]" :src="lead[field]"/>
+            <img :v-if="previews[field]" :src="previews[field]" class="mt-2 max-h-48 rounded"/>
             <input 
                 type="file" 
-                id="image" 
-                @change="$emit('change'); onImageChoose($event, field)"
-                required=""
+                accept="image/*"
+                @change="onImageChoose($event, field)"
+                required
                 class="
                     block w-full
                     rounded-md

@@ -24,6 +24,10 @@ const store = createStore( {
             },
             step: 1,
         },
+        files: {
+            proof_of_id: null,
+            proof_of_address: null
+        },
         fields: [
             'first_name',
             'last_name',
@@ -33,9 +37,16 @@ const store = createStore( {
         reload: false,
         loading: false
     },
-    getters: {},
+    getters: {
+        hasFieldValue: (state) => (field) => {
+            if(['proof_of_id', 'proof_of_address'].includes(field)) {
+                return !!(state.files[field] || state.lead.data[field])
+            }
+            const v = state.lead.data[field]
+            return v !== null && v !== undefined && String(v).trim() !== ''
+        }
+    },
     actions: {
-
         loadLead({ commit }, id) {
             commit('setStateLoading', true)
             return axiosClient.get(`/leads/${id}`, id)
@@ -49,25 +60,23 @@ const store = createStore( {
                 throw('error')
             })
         },
-        createLead({ commit }, lead) {
-            return axiosClient.post('/leads', lead)
-            .then((response) => {
-                commit('updateLead', response.data.data)
-            })
+        createLead({ commit, state}) {
+            const fd = makeFormData(state.lead.data, state.files);
+            return axiosClient.post('/leads', fd)
+            .then((response) => commit('updateLead', response.data.data))
 
         },
-        updateLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead.id}`, lead
-            )
-            .then(() => {
-                commit('updateLead', lead)
+        updateLead({ commit, state}) {
+            const fd = makeFormData(state.lead.data, state.files);
+            fd.append('_method', 'PUT')
+            return axiosClient.post(`/leads/${state.lead.data.id}`, fd, {
+                headers: {
+                    transformRequest: data => data,
+                    'Content-Type': 'multipart/form-data',
+                    'X-HTTP-Method-Override': 'PUT'
+                }
             })
-        },
-        completeLead({ commit }, lead) {
-            return axiosClient.put(`/leads/${lead.id}`, lead)
-            .then(() => {
-                commit('completeLead')
-            })
+            .then(() => commit('updateLead', state.lead.data))
         },
         nextStep({commit}) {
             commit('nextStep')
@@ -80,11 +89,14 @@ const store = createStore( {
         }
     },
     mutations: {
+        setFile(state, {field, file}) { 
+            state.files[field] = file
+        },
         setStateLoading(state, loading) {
         state.loading = loading  
         },
-        updateLead(state, lead) {
-            state.lead.data = lead
+        updateLead(state, payload) {
+            state.lead.data = payload
         },
         setReload(state, reload) {
             state.reload = reload
@@ -118,8 +130,27 @@ const store = createStore( {
     },
     modules: {},
     plugins: [
-        createPersistedState()
+        createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading']})
     ]
 })
 
+function makeFormData(lead, files) {
+    const fd = new FormData();
+
+    const appendScalar = (k, v) => {
+        if(v === undefined || v === null || v === '') return;
+        if (typeof v === 'boolean') fd.append(k, v ? '1' : '0')
+        else fd.append(k, v)
+    }
+
+    Object.entries(lead).forEach(([k, v]) => {
+        if(['proof_of_id', 'proof_of_address'].includes(k)) return;
+        appendScalar(k, v)
+    })
+
+    if (files.proof_of_id) fd.append('proof_of_id', files.proof_of_id)
+    if (files.proof_of_address) fd.append('proof_of_address', files.proof_of_address)
+    
+    return fd
+}
 export default store
