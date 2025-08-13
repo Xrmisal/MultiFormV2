@@ -130,7 +130,7 @@ const store = createStore( {
     },
     modules: {},
     plugins: [
-        createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading']})
+        createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading', 'files']})
     ]
 })
 

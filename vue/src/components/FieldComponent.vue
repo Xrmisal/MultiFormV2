@@ -14,6 +14,7 @@ const ALLOWED_EXT = new Set(['jpg', 'jpeg', 'png'])
 const getExt = (name) => (name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] ?? '')
 
 async function isRealJpegOrPng(file) {
+    // Check the first 8 bytes of the file to see if it's a JPEG or PNG
     const head = new Uint8Array(await file.slice(0, 8).arrayBuffer())
     const isJpeg = head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff
     const isPng = head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4e && head[3] === 0x47 && head[4] === 0x0d && head[5] === 0x0a && head[6] === 0x1a && head[7] === 0x0a

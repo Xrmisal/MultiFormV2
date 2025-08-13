@@ -83,9 +83,6 @@ function fieldName(field) {
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ')
 }
-function hasValue(field) {
-        return lead.value.data[field]
-}
 async function hasValidValue(fieldName) {
         const fieldValue = lead.value.data[fieldName]
         switch (fieldName) {

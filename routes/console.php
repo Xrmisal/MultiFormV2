@@ -16,6 +16,8 @@ Artisan::command('fail:lead {id}', function (string $id) {
         return $this->error('Lead with ID ' . $id . ' does not exist.');
     } else if($lead->failed) {
         return $this->error('Lead with ID ' . $id . ' has already been failed.');       
+    } else if(!$lead->complete) {
+        return $this->error('Lead with ID ' . $id . ' has not been completed and therefore cannot be failed');
     } else {
         $lead->failed = true;
         $lead->save();
