@@ -35,8 +35,8 @@ class UpdateLeadRequest extends FormRequest
             'street_name' => 'sometimes|string|max:37',
             'city' => 'sometimes|string|max:58',
             'postcode' => 'sometimes|postal_code:GB',
-            'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:5120',
-            'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:5120',
+            'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
+            'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
             'complete' => 'sometimes|boolean',
             'failed' => 'sometimes|boolean'
         ];

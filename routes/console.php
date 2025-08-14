@@ -20,6 +20,10 @@ Artisan::command('fail:lead {id}', function (string $id) {
         return $this->error('Lead with ID ' . $id . ' has not been completed and therefore cannot be failed');
     } else {
         $lead->failed = true;
+        Storage::delete($lead->proof_of_id);
+        Storage::delete($lead->proof_of_address);
+        $lead->proof_of_id = null;
+        $lead->proof_of_address = null;
         $lead->save();
 
         $this->comment('Lead with ID ' . $id . ' has been failed.');

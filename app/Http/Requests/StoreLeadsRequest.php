@@ -32,8 +32,8 @@ class StoreLeadsRequest extends FormRequest
             'street_name' => 'nullable|string|max:37',
             'city' => 'nullable|string|max:58',
             'postcode' => 'nullable|postal_code:GB',
-            'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:5120',
-            'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:5120',
+            'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
+            'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
             'complete' => 'required|boolean',
             'failed' => 'nullable|boolean'
         ];

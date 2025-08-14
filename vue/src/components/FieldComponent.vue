@@ -31,10 +31,11 @@ async function onImageChoose(ev, field) {
     const file = ev.target.files?.[0];
     if(!file) return;
 
-    const maxBytes = 2 * 1000 * 1000
+    const maxBytes = 10 * 1000 * 1000
     if(file.size > maxBytes) {
-        emit('error', 'File too large, max 2MB')
+        emit('error', 'File too large, max 10MB')
         ev.target.value = ''
+        previews.value[field] = null
         return
     }
 
@@ -43,6 +44,7 @@ async function onImageChoose(ev, field) {
     if(!extOK || !mimeOK || !(await isRealJpegOrPng(file))) {
         emit('error', 'Invalid file type, must be JPG/JPEG or PNG')
         ev.target.value = ''
+        previews.value[field] = null
         return
     }
 

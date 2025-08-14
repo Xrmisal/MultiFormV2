@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
 use App\Models\Lead;
 use Exception;
+use Illuminate\Foundation\Http\FormRequest;
 use Str;
 
 class LeadController extends Controller
@@ -25,40 +26,26 @@ class LeadController extends Controller
     public function store(StoreLeadsRequest $request)
     {
         $data = $request->validated();
-
-        if (Lead::where('email', $data['email'])->where('complete', true)->exists() || Lead::where('email', $data['email'])->where('failed', true)->exists()) {
-            return response('Email already exists', 409);
-        }
-
-        if ($request->hasFile('proof_of_id')) {
-            $path = $this->storeImageForLead($data, $request->file('proof_of_id'), 'proof_of_id');
-
-            if($data->proof_of_id) Storage::delete($data->proof_of_id);
-
-            $data['proof_of_id'] = $path;
-        } else unset($data['proof_of_id']);
-
-        if ($request->hasFile('proof_of_address')) {
-            $path = $this->storeImageForLead($data, $request->file('proof_of_address'), 'proof_of_address');
-
-            if($data->proof_of_address) Storage::delete($data->proof_of_address);
-
-            $data['proof_of_address'] = $path;
-        } else unset($data['proof_of_address']);
+        $lead = Lead::where('email', $data['email'])->first();
+        $isCompleteLead = $lead && $lead->complete && !$lead->failed;
         
-
-        if ($lead = Lead::where('email', $data['email'])->first()) {
-            $lead->fill($data)->save();
-            return new LeadResource($lead);
+        if ($isCompleteLead) {
+            return response('Email already exists', 409);
+        } else if (!$lead) {
+            $lead = new Lead;
+            $lead->id = Str::uuid();
         }
-        $lead = Lead::create($data);
+        
+        $this->handleImages($data, $lead, $request);
+        $lead->fill($data)->save();
 
         return new LeadResource($lead);
     }
 
     public function show(Lead $lead)
     {
-        if ($lead->complete && $lead->failed) {
+        $isFailedLead = $lead->complete && $lead->failed;
+        if ($isFailedLead) {
             $lead->complete = false;
             File::delete(storage_path($lead->proof_of_id));
             File::delete(storage_path($lead->proof_of_address));
@@ -73,33 +60,17 @@ class LeadController extends Controller
     public function update(UpdateLeadRequest $request, Lead $lead)
     {
         $data = $request->validated();
-        if($lead->complete && !$lead->failed) {
+        $isFinishedSubmission = $lead->complete && !$lead->failed;
+        $isMarkedComplete = !empty($data['complete'] && $data['complete'] == true);
+
+        if($isFinishedSubmission) {
             return response('Cannot update completed submission', 403);
         }
 
-        if($data['complete'] == true) {
-            Log::info('Complete if hit');
-            $lead->complete = true;
-            $lead->save();
-            return response()->noContent();
+        if($isMarkedComplete) {
+            $lead->failed ? $lead->failed = false : null;
         }
-
-        if ($request->hasFile('proof_of_id')) {
-            $path = $this->storeImageForLead($lead, $request->file('proof_of_id'), 'proof_of_id');
-
-            if($lead->proof_of_id) Storage::delete($lead->proof_of_id);
-
-            $data['proof_of_id'] = $path;
-        } else unset($data['proof_of_id']);
-
-        if ($request->hasFile('proof_of_address')) {
-            $path = $this->storeImageForLead($lead, $request->file('proof_of_address'), 'proof_of_address');
-
-            if($lead->proof_of_address) Storage::delete($lead->proof_of_address);
-
-            $data['proof_of_address'] = $path;
-        } else unset($data['proof_of_address']);
-
+        $this->handleImages($data, $lead, $request);
         $lead->fill($data)->save();
 
         return response()->noContent();
@@ -108,8 +79,22 @@ class LeadController extends Controller
     {
         return response('Not implemented', 501);
     }
+    private function handleImages(array &$data, Lead $lead, FormRequest $request){
+        if ($path = $this->setImageStoreForData('proof_of_id', $lead, $request)) {
+            $data['proof_of_id'] = $path;
+        }
+        if ($path = $this->setImageStoreForData('proof_of_address', $lead, $request)) {
+            $data['proof_of_address'] = $path;
+        }
+    }
+    private function setImageStoreForData(string $kind, Lead $lead, FormRequest $request) {
+        if ($request->hasFile($kind)) {
+            if($lead->{$kind}) Storage::delete($lead->{$kind});
+            $path = $this->storeImageForLead($lead, $request->file($kind), $kind);
 
-
+            return $path;
+        } return null;
+    }
     private function storeImageForLead(Lead $lead, UploadedFile $file, string $kind) {
         $dir = "images/leads/{$lead->id}";
         $ext = strtolower($file->guessExtension() ? : 'bin');

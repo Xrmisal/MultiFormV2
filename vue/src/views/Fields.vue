@@ -58,12 +58,15 @@ async function updateOrCreateLead() {
         if (isNewLead) {
                 await store.dispatch('createLead')
                 .catch((error) => {
-                        errorMsg.value.push(error.response.data)
+                        errorMsg.value.push(error.response.data.message)
+                        localStorage.removeItem('vuex')
+                        valueChange.value = true
                 })
         } else {
                 await store.dispatch('updateLead')
                 .catch((error) => {
-                        errorMsg.value.push(error.response)
+                        errorMsg.value.push(error.response.data.message)
+                        valueChange.value = true
                 })
         }
 }
@@ -75,7 +78,7 @@ function completeLead() {
                 router.push({name: 'Complete'})
         })
         .catch((error) => {
-                errorMsg.value.push(error.response.data)
+                errorMsg.value.push(error.response.data.message)
         })
 }
 function fieldName(field) {
