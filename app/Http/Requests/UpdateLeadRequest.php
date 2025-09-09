@@ -37,8 +37,7 @@ class UpdateLeadRequest extends FormRequest
             'postcode' => 'sometimes|postal_code:GB',
             'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
             'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
-            'complete' => 'sometimes|boolean',
-            'failed' => 'sometimes|boolean'
+            'status' => 'sometimes|string'
         ];
     }
 }

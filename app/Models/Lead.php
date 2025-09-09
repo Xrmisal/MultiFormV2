@@ -9,10 +9,11 @@ class Lead extends Model
 {
 
     use HasUuids;
+    protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
-        'id',
+        'user_id',
         'first_name',
         'last_name',
         'email',
@@ -24,9 +25,10 @@ class Lead extends Model
         'postcode',
         'proof_of_id',
         'proof_of_address',
-        'complete',
-        'failed',
-        'converted'
+        'status'
     ];
 
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
 }

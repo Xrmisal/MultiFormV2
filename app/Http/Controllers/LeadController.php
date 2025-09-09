@@ -19,6 +19,9 @@ use Str;
 
 class LeadController extends Controller
 {
+    public function __construct() {
+        $this->authorizeResource(Lead::class, 'lead');
+    }
     public function index()
     {
         return response('Not implemented', 501);
@@ -26,49 +29,46 @@ class LeadController extends Controller
     public function store(StoreLeadsRequest $request)
     {
         $data = $request->validated();
-        $lead = Lead::where('email', $data['email'])->first();
-        $isCompleteLead = $lead && $lead->complete && !$lead->failed;
+        $request->user()->lead()
+        ? $lead = $request->user()->lead()
+        : $lead = Lead::where('email', $data['email'])->first();
+        $isCompleteLead = $lead->status === 'complete';
         
         if ($isCompleteLead) {
-            return response('Email already exists', 409);
+            return response('Submission already completed.', 409);
         } else if (!$lead) {
             $lead = new Lead;
-            $lead->id = Str::uuid();
+            $lead->user_id = $request->user()->id;
         }
-        
         $this->handleImages($data, $lead, $request);
         $lead->fill($data)->save();
 
         return new LeadResource($lead);
     }
 
-    public function show(Lead $lead)
+    public function show(Request $request, Lead $lead)
     {
-        $isFailedLead = $lead->complete && $lead->failed;
-        if ($isFailedLead) {
-            $lead->complete = false;
+        if ($lead->status == 'failed') {
             File::delete(storage_path($lead->proof_of_id));
             File::delete(storage_path($lead->proof_of_address));
             $lead->proof_of_id = null;
             $lead->proof_of_address = null;
             $lead->save();
-            return new LeadResource($lead);
-        } else {
-            return response('Cannot get submission details', 403);
-        }        
+        }
+        return new LeadResource($lead);
     }
     public function update(UpdateLeadRequest $request, Lead $lead)
     {
         $data = $request->validated();
-        $isFinishedSubmission = $lead->complete && !$lead->failed;
-        $isMarkedComplete = !empty($data['complete'] && $data['complete'] == true);
+        $isFinishedSubmission = $lead->status == 'complete';
+        $isFailedSubmission = $lead->status == 'failed';
 
         if($isFinishedSubmission) {
             return response('Cannot update completed submission', 403);
         }
 
-        if($isMarkedComplete) {
-            $lead->failed ? $lead->failed = false : null;
+        if($isFailedSubmission) {
+            $lead->status ? $lead->status = false : null;
         }
         $this->handleImages($data, $lead, $request);
         $lead->fill($data)->save();

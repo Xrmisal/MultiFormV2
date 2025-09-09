@@ -17,7 +17,7 @@ class LeadResource extends JsonResource
     {
 
         return [
-            'id' => $this->id,
+            'id' => $this->user_id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'email' => $this->email,
@@ -29,8 +29,7 @@ class LeadResource extends JsonResource
             'postcode' => $this->postcode,
             'proof_of_id' => $this->proof_of_id,
             'proof_of_address' => $this->proof_of_address,
-            'complete' => $this->complete,
-            'failed' => $this->failed
+            'status' => $this->status
         ];
     }
 }

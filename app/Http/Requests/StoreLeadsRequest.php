@@ -34,8 +34,7 @@ class StoreLeadsRequest extends FormRequest
             'postcode' => 'nullable|postal_code:GB',
             'proof_of_id' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
             'proof_of_address' => 'sometimes|file|image|mimes:jpg,jpeg,png|max:10240',
-            'complete' => 'required|boolean',
-            'failed' => 'nullable|boolean'
+            'status' => 'required|string'
         ];
     }
     public function messages() {

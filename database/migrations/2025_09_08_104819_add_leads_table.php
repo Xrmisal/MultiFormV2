@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('leads', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('user_id')->primary();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -24,9 +25,7 @@ return new class extends Migration
             $table->string('postcode')->nullable();
             $table->string('proof_of_id')->nullable();
             $table->string('proof_of_address')->nullable();
-            $table->boolean('complete');
-            $table->boolean("failed")->nullable();
-            $table->boolean("converted")->nullable();
+            $table->string("status")->nullable();
             $table->timestamps();
         });
     }

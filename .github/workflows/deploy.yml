@@ -30,4 +30,6 @@ jobs:
       - name: Ensure writable dirs
         run: |
           sudo chmod -R 2775 /var/www/api/bootstrap/cache /var/www/api/storage
-          
+      - name: Rewrite migrations
+        run: | 
+          sudo php artisan migrate:fresh
