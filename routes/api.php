@@ -9,6 +9,7 @@ Route::middleware("auth:sanctum")->group(function() {
     Route::resource('/leads', LeadController::class);
     Route::post('/logout', [AuthController::class,'logout']);
     Route::get('/user', [AuthController::class,'getUser']);
+    Route::get('/status', [LeadController::class, 'getStatus']);
 });
 
 Route::post('/login', [AuthController::class,'login'])->middleware('throttle:10,1');

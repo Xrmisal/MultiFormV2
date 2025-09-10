@@ -8,13 +8,11 @@ import { onMounted } from 'vue';
 import { parsePhoneNumberFromString } from 'libphonenumber-js'
 import isValid from 'uk-postcode-validator'
 import axios from 'axios'
-
+import Spinner from '../components/core/Spinner.vue';
 const router = useRouter()
-const route = useRoute()
 
 const lead = computed(() => store.state.lead)
 const fields = computed(() => store.state.fields)
-const reload = computed(() => store.state.reload);
 const finalStep = computed(() => (lead.value.step === 4))
 const loading = computed(() => store.state.loading)
 
@@ -29,14 +27,15 @@ const valueChange = ref(false)
 const postcodeURL = "https://api.postcodes.io/postcodes/"
 
 onMounted(() => {
-        if(route.params.id && !reload.value) {
-                localStorage.removeItem('vuex')
-                store.dispatch('loadLead', route.params.id)
+        if(['draft', 'failed'].includes(lead.value.data.status)) {
+                store.dispatch('loadLead', store.state.user.data.id)
                 .catch(() => {
                         router.push({name: '404'})
                 })
+        lead.value.data.status === 'failed' ? store.commit('resetSteps') : null
+        store.commit('setFields')
         }
-        if(lead.value.data.complete === true) {
+        if(lead.value.data.status === 'complete') {
                 router.push({name: 'Complete'})
         }
 })
@@ -56,6 +55,7 @@ function lastStep() {
 async function updateOrCreateLead() {
         const isNewLead = !store.state.lead.data.id;
         if (isNewLead) {
+                lead.value.data.status = 'draft'
                 await store.dispatch('createLead')
                 .catch((error) => {
                         errorMsg.value.push(error.response.data.message)
@@ -71,8 +71,7 @@ async function updateOrCreateLead() {
         }
 }
 function completeLead() {
-        lead.value.data.complete = true
-        lead.value.data.failed = false
+        lead.value.data.status = 'complete'
         store.dispatch('updateLead')
         .then(() => {
                 router.push({name: 'Complete'})
@@ -205,10 +204,10 @@ function onFile({field, file}) {
                 :style="{ width: progress + '%' }"
                 />
         </div>
-        <div v-if="loading">Loading...</div>
+        <Spinner v-if="loading"></Spinner>
         <div class="mt-10 mx-auto w-full max-w-md px-4" v-else>
                 <header class="text-gray-300 flex justify-center font-bold text-3xl mb-6">
-                        {{ reload ? 'Resubmit Details' : 'Submit Details' }}
+                        {{ lead.data.status === 'failed' ? 'Resubmit Details' : 'Submit Details' }}
                 </header>
                 <form class="space-y-6 rounded-lg p-8 bg-gray-800 animate-fade-in-down" @submit.prevent="completeLead">
                         <Alert v-if="errorMsg.length">

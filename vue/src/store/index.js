@@ -10,6 +10,7 @@ const store = createStore( {
         },
         lead: {
             data: {
+                id: '',
                 first_name: '',
                 last_name: '',
                 email: '',
@@ -35,7 +36,6 @@ const store = createStore( {
             'email',
             'phone'
         ],
-        reload: false,
         loading: false
     },
     getters: {
@@ -48,12 +48,18 @@ const store = createStore( {
         }
     },
     actions: {
+        getStatus({commit}) {
+            return axiosClient.get(`/status`)
+            .then(({data}) => {
+                commit(`setStatus`, data.leadStatus)
+                return data
+            })  
+        },
         register({commit}, user) {
             return axiosClient.post(`/register`, user)
             .then(({data}) => {
                 commit(`setUser`, data.user)
                 commit('setToken', data.token)
-                commit('setStatus', data.leadStatus)
                 return data
             })
         },
@@ -62,7 +68,6 @@ const store = createStore( {
             .then(({data}) => {
                 commit(`setUser`, data.user)
                 commit('setToken', data.token)
-                commit('setStatus', data.leadStatus)
                 return data
             })
         },
@@ -76,10 +81,9 @@ const store = createStore( {
         },
         loadLead({ commit }, id) {
             commit('setStateLoading', true)
-            return axiosClient.get(`/leads/${id}`, id)
+            return axiosClient.get(`/leads/${id}`)
             .then((response) => {
                 commit(`updateLead`, response.data.data);
-                commit(`setReload`, true)
                 commit ('setStateLoading', false)
             })
             .catch(() => {
@@ -120,7 +124,9 @@ const store = createStore( {
             state.lead.data.status = status
         },
         resetState(state) {
+            console.log('entered')
             localStorage.clear()
+            console.log('cleared console')
             store.replaceState(getDefaultState())
         },
         setUser(state, user) {
@@ -150,6 +156,9 @@ const store = createStore( {
         lastStep(state) {
             state.lead.step--
         },
+        resetSteps(state) {
+            state.lead.step = 1
+        },
         setFields(state) {
             switch(state.lead.step) {
                 case 1:
@@ -173,7 +182,41 @@ const store = createStore( {
         createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading', 'files', 'user']})
     ]
 })
-const getDefaultState = () => store.state
+const getDefaultState = () => ({
+        user: {
+                token: sessionStorage.getItem('TOKEN'),
+                data: {}
+            },
+            lead: {
+                data: {
+                    id: '',
+                    first_name: '',
+                    last_name: '',
+                    email: '',
+                    phone: '',
+                    date_of_birth: '',
+                    house_number: '',
+                    street_name: '',
+                    city: '',
+                    postcode: '',
+                    proof_of_id: '',
+                    proof_of_address: '',
+                    status: '',
+                },
+                step: 1,
+            },
+            files: {
+                proof_of_id: null,
+                proof_of_address: null
+            },
+            fields: [
+                'first_name',
+                'last_name',
+                'email',
+                'phone'
+            ],
+            loading: false
+    })
 
 function makeFormData(lead, files) {
     const fd = new FormData();

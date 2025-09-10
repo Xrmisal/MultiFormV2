@@ -14,12 +14,12 @@ Artisan::command('fail:lead {id}', function (string $id) {
     $lead = Lead::find($id);
     if (!$lead) {
         return $this->error('Lead with ID ' . $id . ' does not exist.');
-    } else if($lead->failed) {
+    } else if($lead->status == 'failed') {
         return $this->error('Lead with ID ' . $id . ' has already been failed.');       
-    } else if(!$lead->complete) {
+    } else if(!$lead->status == 'complete') {
         return $this->error('Lead with ID ' . $id . ' has not been completed and therefore cannot be failed');
     } else {
-        $lead->failed = true;
+        $lead->status = 'failed';
         Storage::delete($lead->proof_of_id);
         Storage::delete($lead->proof_of_address);
         $lead->proof_of_id = null;

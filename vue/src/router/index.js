@@ -49,7 +49,8 @@ const routes = [
         name: 'FormLayout',
         component: FormLayout,
         meta: {
-            requiresAuth: true
+            requiresAuth: true,
+            requiresValidStatus: true
         },
         children: [
             {
@@ -86,6 +87,8 @@ router.beforeEach((to, from, next) => {
     if (to.meta.requiresAuth && !store.state.user.token) {
         next({name: 'login'})
     } else if (to.meta.requiresGuest && store.state.user.token) {
+        next({name: 'app.dashboard'})
+    } else if (to.meta.requiresValidStatus && !['empty', 'draft', 'failed'].includes(store.state.lead.data.status)) {
         next({name: 'app.dashboard'})
     } else {
         next()

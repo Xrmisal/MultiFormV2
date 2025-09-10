@@ -22,7 +22,6 @@ class AuthController extends Controller
         return response()->json([
             'user' => new UserResource($user),
             'token' => $token,
-            'leadStatus' => $user->Lead()->status ?? 'empty'
         ]);
     }
     public function login(AuthRequest $request) {
@@ -38,7 +37,6 @@ class AuthController extends Controller
         return response()->json([
             'user' => new UserResource($user),
             'token' => $token,
-            'leadStatus' => $user->Lead()->status ?? 'empty'
         ]);
     }
     public function logout(Request $request) { 

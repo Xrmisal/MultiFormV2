@@ -6,6 +6,7 @@ import store from '../store';
 import Spinner from './core/Spinner.vue';
 
 const currentUser = computed(() => store.state.user.data)
+const leadStatus = computed(() => store.state.lead.data.status)
 const sidebarOpened = ref(true);
 
 defineProps({
@@ -15,10 +16,12 @@ defineProps({
 onMounted(() => {
     updateSidebarState()
     window.addEventListener('resize', updateSidebarState)
+    store.dispatch('getStatus')
 })
 
 onUnmounted(() => {
     window.removeEventListener('resize', updateSidebarState)
+
 })
 
 
