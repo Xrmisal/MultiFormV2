@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Lead;
 use Laravel\Sanctum\HasApiTokens;
-
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -52,6 +51,6 @@ class User extends Authenticatable
     }
 
     public function Lead() {
-        return $this->hasOne('Lead');
+        return $this->hasOne(Lead::class);
     }
 }

@@ -1,13 +1,15 @@
 import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import axiosClient from "../axios";
-import axios from "axios";
 
 const store = createStore( {
     state: {
+        user: {
+            token: sessionStorage.getItem('TOKEN'),
+            data: {}
+        },
         lead: {
             data: {
-                id: '',
                 first_name: '',
                 last_name: '',
                 email: '',
@@ -19,8 +21,7 @@ const store = createStore( {
                 postcode: '',
                 proof_of_id: '',
                 proof_of_address: '',
-                complete: false,
-                failed: false,
+                status: '',
             },
             step: 1,
         },
@@ -47,6 +48,32 @@ const store = createStore( {
         }
     },
     actions: {
+        register({commit}, user) {
+            return axiosClient.post(`/register`, user)
+            .then(({data}) => {
+                commit(`setUser`, data.user)
+                commit('setToken', data.token)
+                commit('setStatus', data.leadStatus)
+                return data
+            })
+        },
+        login({commit}, user) {
+            return axiosClient.post(`/login`, user)
+            .then(({data}) => {
+                commit(`setUser`, data.user)
+                commit('setToken', data.token)
+                commit('setStatus', data.leadStatus)
+                return data
+            })
+        },
+        logout({commit}) {
+            return axiosClient.post('/logout')
+            .then((response) => {
+                commit(`setUser`, null)
+                commit (`setToken`, null)
+                return response
+            })
+        },
         loadLead({ commit }, id) {
             commit('setStateLoading', true)
             return axiosClient.get(`/leads/${id}`, id)
@@ -89,6 +116,19 @@ const store = createStore( {
         }
     },
     mutations: {
+        setStatus(state, status) {
+            state.lead.data.status = status
+        },
+        resetState(state) {
+            localStorage.clear()
+            store.replaceState(getDefaultState())
+        },
+        setUser(state, user) {
+            state.user.data = user
+        },
+        setToken(state, token) {
+            state.user.token = token
+        },
         setFile(state, {field, file}) { 
             state.files[field] = file
         },
@@ -130,9 +170,10 @@ const store = createStore( {
     },
     modules: {},
     plugins: [
-        createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading', 'files']})
+        createPersistedState({paths: ['lead.data', 'lead.step', 'fields', 'reload', 'loading', 'files', 'user']})
     ]
 })
+const getDefaultState = () => store.state
 
 function makeFormData(lead, files) {
     const fd = new FormData();
